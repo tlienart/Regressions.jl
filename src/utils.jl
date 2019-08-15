@@ -49,7 +49,7 @@ function sigmoid(x::Float32)
 	return one(x) / (one(x) + exp(-x))
 end
 sigmoid(x) = sigmoid(float(x))
-
+σ = sigmoid
 
 """
 $SIGNATURES
@@ -69,3 +69,17 @@ function logsigmoid(x::Float32)
 	return -log1p(exp(-x))
 end
 logsigmoid(x) = logsigmoid(float(x))
+logσ = logsigmoid
+
+
+"""
+$SIGNATURES
+
+In place computation of `H = H + λI` where  `H` is a square matrix.
+"""
+function add_λI!(H::Matrix, λ::Real)
+	λ = convert(eltype(H), λ)
+	@inbounds for i in 1:size(H, 1)
+		H[i,i] += λ
+	end
+end

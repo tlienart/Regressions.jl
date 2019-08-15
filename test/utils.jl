@@ -31,4 +31,7 @@ end
     @test R.logsigmoid(50f0) == 0.0f0
     @test R.logsigmoid(-50) == -50.0
     @test R.logsigmoid(-50f0) == -50.0f0
+
+    x = randn()
+    @test -R.σ(-x) ≈ (R.σ(x) - 1.0)
 end

@@ -1,5 +1,6 @@
 export Analytical, CG,
-        Newton, NewtonCG
+        Newton, NewtonCG,
+        LBFGS
         #        ProxGD, ISTA,
 #        QuasiNewton, BFGS, LBFGS
 
@@ -13,3 +14,11 @@ end
 CG() = Analytical(; iterative=true)
 
 struct Newton <: Solver end
+
+struct NewtonCG <: Solver end
+
+abstract type QuasiNewton <: Solver end
+
+struct LBFGS <: QuasiNewton end
+
+struct BFGS <: QuasiNewton end

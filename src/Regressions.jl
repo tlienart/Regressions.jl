@@ -22,5 +22,6 @@ include("glr/gradhess.jl")
 include("fit/solvers.jl")
 include("fit/default.jl")
 include("fit/analytical.jl")
+include("fit/newton.jl")
 
 end # module

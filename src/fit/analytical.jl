@@ -1,3 +1,5 @@
+# Solvers corresponding to solving a closed-form expression
+
 """
 $SIGNATURES
 

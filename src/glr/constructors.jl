@@ -36,8 +36,6 @@ Objective function: ``|y-Xθ|₂²/2``.
 """
 LinearRegression(; fit_intercept::Bool=true) = GLR(fit_intercept=fit_intercept)
 
-const LinReg = GLR{L2Loss,NoPenalty}
-
 """
 $SIGNATURES
 
@@ -48,7 +46,6 @@ function RidgeRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true
     GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty())
 end
 
-const Ridge = GLR{L2Loss,ScaledPenalty{L2Penalty}}
 
 """
 $SIGNATURES
@@ -60,7 +57,6 @@ function LassoRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true
     GLR(fit_intercept=fit_intercept, penalty=lambda*L1Penalty())
 end
 
-const Lasso = GLR{L2Loss,ScaledPenalty{L1Penalty}}
 
 """
 $SIGNATURES
@@ -86,5 +82,3 @@ function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ,
     end
     GeneralizedLinearRegression(loss=LogisticLoss(), penalty=penalty, fit_intercept=fit_intercept)
 end
-
-const Logistic{T} = GLR{LogisticLoss,T}
