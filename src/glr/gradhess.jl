@@ -1,51 +1,54 @@
-# f   -- objective function
 # fg! -- objective function and gradient (avoiding recomputations)
 # Hv! -- application of the Hessian
-
-f(glr::GLR, X, y) = objfun(glr, X, y)
 
 # ------------------------ #
 #  -- Linear Regression -- #
 # ------------------------ #
+# -> ∇f(θ)  = X'(Xθ - y)   #
+# -> ∇²f(θ) = X'X          #
+# ------------------------ #
 
-function fg!(glr::LinReg, X, y)
-    J = obj(glr)
-    (f, g, θ) -> begin
-        # common computations
-        v = X*θ
-        if g !== nothing
-            # update the gradient in place
-            mul!(g, X', v .- y)
+function fg!(glr::GLR{L2Loss,<:L2R}, X, y)
+    J    = obj(glr) # GLR objective (loss+penalty)
+    n, p = size(X)
+    λ    = getscale(glr.penalty)
+    if glr.fit_intercept
+        (f, g, θ) -> begin
+            β = θ[end]
+            v = X * θ[1:end-1] .+ β .* ones(n)
+            g !== nothing && (mul!(g, X', v .- y); g .+= λ .* θ)
+            f !== nothing && return J(y, v, θ)
         end
-        if f !== nothing
-            # return the value of the objective function
-            return J(y, v, θ)
-        end
-    end
-end
-
-Hv!(::LinReg, X, y) = (Hv, v) -> mul!(Hv, X', X * v)
-
-# ----------------------- #
-#  -- Ridge Regression -- #
-# ----------------------- #
-
-function fg!(glr::Ridge, X, y)
-    J = obj(glr)
-    λ = getscale(glr.penalty)
-    (f, g, θ) -> begin
-        # common computations
-        v = X*θ
-        if g !== nothing
-            # update the gradient in place
-            mul!(g, X', v .- y) # l2 loss
-            g .+= λ .* θ        # l2 penalty
-        end
-        if f !== nothing
-            # return the value of the objective function
-            return J(y, v, θ)
+    else
+        (f, g, θ) -> begin
+            v = X * θ
+            g !== nothing && (mul!(g, X', v .- y); g .+= λ .* θ)
+            f !== nothing && return J(y, v, θ)
         end
     end
 end
 
-Hv!(m::Ridge, X, y) = (Hv, v) -> (mul!(Hv, X', X * v); Hv .+= getscale(m.penalty) .* v)
+function Hv!(glr::GLR{L2Loss,<:L2R}, X, y)
+    n, p = size(X)
+    λ    = getscale(glr.penalty)
+    if glr.fit_intercept
+        # H = [X 1]'[X 1] + λ I
+        # rows a 1:p = [X'X + λI | X'1]
+        # row  e end = [X'1      | n+λ]
+        (Hv, v) -> begin
+            # view on the first p rows
+            a   = 1:p
+            Hva = view(Hv, a)
+            va  = view(v,  a)
+            Xt1 = vec(sum(X, dims=1))
+            ve  = v[end]
+            # update for the first p rows -- (X'X + λI)v[1:p] + (X'1)v[end]
+            mul!(Hva, X', X * va)
+            Hva .+= λ .* va .+ Xt1 .* ve
+            # update for the last row -- (X'1)'v + n v[end]
+            Hv[end] = dot(Xt1, va) + (n+λ) * ve
+        end
+    else
+        (Hv, v) -> (mul!(Hv, X', X * v); Hv .+= λ .* v)
+    end
+end
