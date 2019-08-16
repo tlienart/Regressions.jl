@@ -103,8 +103,24 @@ end
 end
 
 
-@testset "Logistic Loss" begin
+@testset "Logistic" begin
     ll = LogisticLoss()
 
     @test sum(log.(1 .+ exp.(-(x .* y)))) ≈ ll(x, y)
+end
+
+
+@testset "Multinomial" begin
+    # comparison with sklearn
+    w = [-0.04843, 0.99519, -0.67237, 1.08812, 0.13362, 0.77136]
+    X = [ 0.78843 -0.28336;
+         -0.75568  0.22546;
+         -0.09012  0.68069;
+         -0.34437 -0.98773;
+          1.09285 -0.37161 ]
+    y = [1, 2, 3, 1, 3]
+    mnl = MultinomialLoss()
+    P = X * reshape(w, 2, 3)
+    @test mnl(P, y) ≈ 4.994135263476211
+    @test mnl(y, P) == mnl(P, y)
 end

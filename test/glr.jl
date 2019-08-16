@@ -6,6 +6,7 @@
     logreg0 = LogisticRegression(penalty=:none)
     logreg1 = LogisticRegression()
     logreg2 = LogisticRegression(1.0, 2.0)
+    mnreg2  = MultinomialRegression(1.0, 2.0)
 
     @test isa(glr.loss, L2Loss)
     @test isa(glr.penalty, NoPenalty)
@@ -27,6 +28,9 @@
     @test isa(logreg2.penalty, CompositePenalty)
     @test isa(logreg2.penalty.penalties[1], ScaledPenalty{L2Penalty})
     @test isa(logreg2.penalty.penalties[2], ScaledPenalty{L1Penalty})
+
+    @test isa(mnreg2.loss, MultinomialLoss)
+    @test isa(mnreg2.penalty.penalties[2], ScaledPenalty{L1Penalty})
 end
 
 Random.seed!(1234)

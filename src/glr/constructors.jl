@@ -1,6 +1,6 @@
 export GeneralizedLinearRegression, GLR,
         LinearRegression, RidgeRegression, LassoRegression,
-        LogisticRegression
+        LogisticRegression, MultinomialRegression
 
 """
 GeneralizedLinearRegression{L<:Loss, P<:Penalty}
@@ -36,6 +36,7 @@ Objective function: ``|y-Xθ|₂²/2``.
 """
 LinearRegression(; fit_intercept::Bool=true) = GLR(fit_intercept=fit_intercept)
 
+
 """
 $SIGNATURES
 
@@ -61,10 +62,12 @@ end
 """
 $SIGNATURES
 
-Objective function: ``ll(y, Xθ) + λ|θ|₂²/2 + γ|θ|₁`` where `ll` is the logistic loss.
+Objective function: ``L(y, Xθ) + λ|θ|₂²/2 + γ|θ|₁`` where `L` is either the logistic loss in the
+binary case or the multinomial loss otherwise.
 """
 function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ,
                             penalty::Symbol=iszero(γ) ? :l2 : :en,
+                            multi_class::Bool=false,
                             fit_intercept::Bool=true, gamma::Real=γ)
     check_pos.((λ, γ))
     penalty ∈ (:l1, :l2, :en, :none) ||
@@ -80,5 +83,8 @@ function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ,
     else
         λ * L2Penalty() + γ * L1Penalty()
     end
-    GeneralizedLinearRegression(loss=LogisticLoss(), penalty=penalty, fit_intercept=fit_intercept)
+    loss = multi_class ? MultinomialLoss() : LogisticLoss()
+    GeneralizedLinearRegression(loss=loss, penalty=penalty, fit_intercept=fit_intercept)
 end
+
+MultinomialRegression(a...; kwa...) = LogisticRegression(a...; multi_class=true, kwa...)
