@@ -1,37 +1,3 @@
-@testset "Constructors" begin
-    glr     = GeneralizedLinearRegression()
-    ols     = LinearRegression()
-    ridge   = RidgeRegression()
-    lasso   = LassoRegression()
-    logreg0 = LogisticRegression(penalty=:none)
-    logreg1 = LogisticRegression()
-    logreg2 = LogisticRegression(1.0, 2.0)
-    mnreg2  = MultinomialRegression(1.0, 2.0)
-
-    @test isa(glr.loss, L2Loss)
-    @test isa(glr.penalty, NoPenalty)
-
-    @test isa(ols.loss, L2Loss)
-    @test isa(ols.penalty, NoPenalty)
-
-    @test isa(ridge.loss, L2Loss)
-    @test isa(ridge.penalty, ScaledPenalty{L2Penalty})
-
-    @test isa(lasso.loss, L2Loss)
-    @test isa(lasso.penalty, ScaledPenalty{L1Penalty})
-
-    @test isa(logreg0.loss, LogisticLoss)
-    @test isa(logreg0.penalty, NoPenalty)
-    @test isa(logreg1.loss, LogisticLoss)
-    @test isa(logreg1.penalty, ScaledPenalty{L2Penalty})
-    @test isa(logreg2.loss, LogisticLoss)
-    @test isa(logreg2.penalty, CompositePenalty)
-    @test isa(logreg2.penalty.penalties[1], ScaledPenalty{L2Penalty})
-    @test isa(logreg2.penalty.penalties[2], ScaledPenalty{L1Penalty})
-
-    @test isa(mnreg2.loss, MultinomialLoss)
-    @test isa(mnreg2.penalty.penalties[2], ScaledPenalty{L1Penalty})
-end
 
 Random.seed!(1234)
 n, p = 50, 5
@@ -40,17 +6,6 @@ X_ = R.augment_X(X, true)
 θ  = randn(p)
 θ1 = randn(p+1)
 y = rand(n)
-
-@testset "Tools" begin
-    lr = LogisticRegression(1.0, 2.0; fit_intercept=false)
-    obj = R.objfun(lr, X, y)
-    J = LogisticLoss() + L2Penalty() + 2L1Penalty()
-    @test obj(θ) ≈ J(y, X*θ, θ)
-    lr = LogisticRegression(1.0, 2.0; fit_intercept=true)
-    obj = R.objfun(lr, X, y)
-    J = LogisticLoss() + L2Penalty() + 2L1Penalty()
-    @test obj(θ1) ≈ J(y, X_*θ1, θ1)
-end
 
 @testset "GH> Ridge" begin
     # with fit_intercept
@@ -112,4 +67,29 @@ end
     Hv  = similar(v)
     Hv!(Hv, θ1, v)
     @test Hv ≈ H1 * v
+end
+
+@testset "GH> MultinL2" begin
+    # comparison sklearn // no intercept
+    θ = [-0.04843, 0.99519, -0.67237, 1.08812, 0.13362, 0.77136]
+    X = [ 0.78843 -0.28336;
+         -0.75568  0.22546;
+         -0.09012  0.68069;
+         -0.34437 -0.98773;
+          1.09285 -0.37161 ]
+    y = [1, 2, 3, 1, 3]
+    mnr = MultinomialRegression(0.0; fit_intercept=false)
+    fg! = R.fg!(mnr, X, y)
+    f = fg!(0.0, nothing, θ)
+    mnl = MultinomialLoss()
+    @test f ≈ mnl(y, X*reshape(θ, 2, 3))
+    g_sk = [-0.12941349639677957,
+             1.033822503077806,
+             0.6025709048825946,
+            -0.3233237353163467,
+            -0.47315740848581506,
+            -0.7104987677614594]
+    g = similar(θ)
+    fg!(nothing, g, θ)
+    @test g ≈ g_sk
 end
