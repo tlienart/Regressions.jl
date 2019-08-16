@@ -26,6 +26,25 @@ function augment_X(X::Matrix{<:Real}, fit_intercept::Bool)
 	return hcat(X, ones(eltype(X), size(X, 1)))
 end
 
+"""
+$SIGNATURES
+
+Return `X*θ` if `c=0` (default) or `X*P` where `P=reshape(θ, size(X, 2), p)` in the multi-class
+case.
+"""
+function apply_X(X, θ, c=0)
+	p = size(X, 2)
+	if iszero(c)
+		length(θ) == p || return X * θ[1:p] .+ θ[end]
+		return X * θ
+	else
+		noβ = length(θ) == p * c
+		W = reshape(θ, p + Int(!noβ), c)
+		noβ || return X * view(W, 1:p, :) .+ view(W, p+1, :)'
+		return X * W
+	end
+end
+
 # Sigmoid and log-sigmoid
 
 const SIGMOID_64 = log(Float64(1)/eps(Float64) - Float64(1))

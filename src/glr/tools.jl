@@ -10,14 +10,6 @@ obj(glr::GLR) = glr.loss + glr.penalty
 """
 $SIGNATURES
 
-Return `X*θ` if `c=0` (default) or `X*P` where `P=reshape(θ, size(X, 2), p)` in the multi-class
-case.
-"""
-apply_X(X, θ, c) = iszero(c) ? X * θ : X * reshape(θ, size(X, 2), c)
-
-"""
-$SIGNATURES
-
 Return a function computing the objective at a given point `θ`.
 """
 function objfun(glr::GLR, X, y; c::Int=0)

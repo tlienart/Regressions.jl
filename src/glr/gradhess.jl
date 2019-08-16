@@ -53,7 +53,7 @@ function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
     λ    = getscale(glr.penalty)
     if glr.fit_intercept
         (f, g, H, θ) -> begin
-            v = X * θ[1:p] .+ θ[end]
+            v = apply_X(X, θ)
             # precompute σ(yXθ) use -σ(-x) = (σ(x)-1)
             w = σ.(v .* y)
             g === nothing || begin
@@ -76,7 +76,7 @@ function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
         end
     else
         (f, g, H, θ) -> begin
-            v = X * θ
+            v = apply_X(X, θ)
             # precompute σ(yXθ) use -σ(-x) = σ(x)(σ(x)-1)
             w = σ.(y .* v)
             g === nothing || (mul!(g, X', y .* (w .- 1.0)); g .+= λ .* θ)
@@ -96,7 +96,7 @@ function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
         # row  e end = [1'ΛX      | sum(a)+λ]
         (Hv, θ, v) -> begin
             # precompute σ(yXθ) use -σ(-x) = (σ(x)-1)
-            w = σ.((X * θ[1:p] .+ θ[end]) .* y)
+            w = σ.(apply_X(X, θ) .* y)
             # view on the first p rows
             a    = 1:p
             Hvₐ  = view(Hv, a)
@@ -111,7 +111,7 @@ function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
         end
     else
         (Hv, θ, v) -> begin
-            w = σ.((X * θ) .* y)
+            w = σ.(apply_X(X, θ) .* y)
             mul!(Hv, X', w .* (X * v))
             Hv .+= λ .* v
         end
@@ -137,41 +137,25 @@ function fg!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
     n, p = size(X)
     c    = maximum(y)
     λ    = getscale(glr.penalty)
-    if glr.fit_intercept
-        (f, g, θ) -> begin
-            P = apply_X(X, θ[1:end-c], c) .+ θ[end-c+1:end]     # O(npc) dims n * c
-            M = exp.(P)                                         # O(npc) dims n * c
-            g === nothing || begin
-                ΛM = M ./ sum(M, dims=2)                        # O(nc)  dims n * c
-                Q  = BitArray(y[i] == j for i = 1:n, j=1:c)
-                g[1:end-c]     .= reshape(X'ΛM .+ X'Q, p * c)   # O(npc)
-                g[end-c+1:end] .= sum(ΛM, dims=1) .+ sum(Q, dims=1)
-                g .+= λ .* θ
+    (f, g, θ) -> begin
+        P = apply_X(X, θ, c)                                 # O(npc) store n * c
+        M = exp.(P)                                          # O(npc) store n * c
+        g === nothing || begin
+            ΛM  = M ./ sum(M, dims=2)                        # O(nc)  store n * c
+            Q   = BitArray(y[i] == j for i = 1:n, j=1:c)
+            G   = X'ΛM .- X'Q                                # O(npc) store n * c
+            if glr.fit_intercept
+                G = vcat(G, sum(ΛM, dims=1) .- sum(Q, dims=1))
             end
-            f === nothing || begin
-                # we re-use pre-computations here, see also MultinomialLoss
-                ms = maximum(P, dims=2)
-                ss = sum(M ./ exp(ms), dims=2)
-                @inbounds ps = [P[i, y[i]] for i in eachindex(y)]
-                return sum(log.(ss) .+ ms .- ps) + λ * norm(θ)^2/2
-            end
+            g  .= reshape(G, (p + Int(glr.fit_intercept)) * c)
+            g .+= λ .* θ
         end
-    else
-        (f, g, θ) -> begin
-            P = apply_X(X, θ, c)
-            M = exp.(P)
-            g === nothing || begin
-                ΛM  = M ./ sum(M, dims=2)
-                Q   = BitArray(y[i] == j for i = 1:n, j=1:c)
-                g  .= reshape(X'ΛM .- X'Q, p * c)
-                g .+= λ .* θ
-            end
-            f === nothing || begin
-                ms = maximum(P, dims=2)
-                ss = sum(M ./ exp.(ms), dims=2)
-                @inbounds ps = [P[i, y[i]] for i in eachindex(y)]
-                return sum(log.(ss) .+ ms .- ps) + λ * norm(θ)^2/2
-            end
+        f === nothing || begin
+            # we re-use pre-computations here, see also MultinomialLoss
+            ms = maximum(P, dims=2)
+            ss = sum(M ./ exp.(ms), dims=2)
+            @inbounds ps = [P[i, y[i]] for i in eachindex(y)]
+            return sum(log.(ss) .+ ms .- ps) + λ * norm(θ)^2/2
         end
     end
 end
