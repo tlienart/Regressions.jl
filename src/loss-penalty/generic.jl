@@ -109,17 +109,45 @@ scale1(a::AP) = ScaledPenalty(a, 1)
 *(a::AP, c::Real)         = ScaledPenalty(a, c)
 
 # Combinations with Scaled Losses and Combined Losses
-+(a::SL, b::SL)   = CL([a, b])
-+(a::CL, b::CL)   = CL(vcat(a.losses, b.losses))
-+(a::SL, c::CL)   = CL(vcat(c.losses, a))
++(a::SL{T},  b::SL{T})  where {T}     = ScaledLoss(a.loss, a.scale + b.scale)
++(a::SL{T1}, b::SL{T2}) where {T1,T2} = CL([a, b])
++(a::CL, b::CL) = begin
+    a_  = a.losses
+    a_T = typeof.(a_)
+    c_  = copy(a_)
+    rem   = ones(Bool, length(b.losses))
+    for (i, L) in enumerate(b.losses)
+        m = findfirst(typeof(L) .== a_T)
+        if m !== nothing
+            c_[m] = c_[m] + L # will be SL{T} + SL{T}
+            rem[i] = false
+        end
+    end
+    CL(vcat(c_, b.losses[rem]))
+end
++(a::SL, c::CL)   = CL([a]) + c
 +(c::CL, a::SL)   = a + c
 *(a::SL, c::Real) = SL(a.loss, c * a.scale)
-*(a::CL, c::Real) = CL(a.losses * c)
+*(a::CL, c::Real) = CL(a.losses .* c)
 
 # Combinations with Scaled Penalties and Combined Penalties
-+(a::SP, b::SP)   = CP([a, b])
-+(a::CP, b::CP)   = CP(vcat(a.penalties, b.penalties))
-+(a::SP, c::CP)   = CP(vcat(c.penalties, a))
++(a::SP{T},  b::SP{T})  where {T}     = ScaledPenalty(a.penalty, a.scale + b.scale)
++(a::SP{T1}, b::SP{T2}) where {T1,T2} = CP([a, b])
++(a::CP, b::CP) = begin
+    a_  = a.penalties
+    a_T = typeof.(a_)
+    c_  = copy(a_)
+    rem = ones(Bool, length(b.penalties))
+    for (i, P) in enumerate(b.penalties)
+        m = findfirst(typeof(P) .== a_T)
+        if m !== nothing
+            c_[m] = c_[m] + P # will be SP{T} + SP{T}
+            rem[i] = false
+        end
+    end
+    CP(vcat(c_, b.penalties[rem]))
+end
++(a::SP, c::CP)   = CP([a]) + c
 +(c::CP, a::SP)   = a + c
 *(a::SP, c::Real) = SP(a.penalty, c * a.scale)
 *(a::CP, c::Real) = CP(a.penalties .* c)

@@ -100,6 +100,22 @@ end
     @test (3sl)(θ) ≈ 6θ1
 
     @test (nl + L1Loss())(x, y) ≈ (L1Loss() + nl)(x, y) ≈ δ1
+
+    a = 0.5 * L1Loss() + L2Loss() + L1Loss() + 0.3 * L2Loss()
+    @test isa(a, CompositeLoss)
+    @test length(a.losses) == 2
+    @test isa(a.losses[1], ScaledLoss{L2Loss})
+    @test a.losses[1].scale == 1.3
+    @test isa(a.losses[2], ScaledLoss{L1Loss})
+    @test a.losses[2].scale == 1.5
+
+    b = 0.5 * L1Penalty() + L2Penalty() + L1Penalty() + 0.3 * L2Penalty()
+    @test isa(b, CompositePenalty)
+    @test length(b.penalties) == 2
+    @test isa(b.penalties[1], ScaledPenalty{L2Penalty})
+    @test b.penalties[1].scale == 1.3
+    @test isa(b.penalties[2], ScaledPenalty{L1Penalty})
+    @test b.penalties[2].scale == 1.5
 end
 
 

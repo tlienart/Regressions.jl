@@ -1,9 +1,12 @@
 using Regressions, Test, LinearAlgebra, Random
-DO_SKLEARN = true; include("testutils.jl")
+DO_SKLEARN = false; include("testutils.jl")
 
 m("UTILS"); include("utils.jl")
 
-m("LOSS-PENALTY"); include("loss-penalty.jl")
+m("LOSS-PENALTY"); begin
+    include("loss-penalty/generic.jl")
+    include("loss-penalty/utils.jl")
+end
 
 m("GLR"); begin
     include("glr/constructors.jl")

@@ -14,9 +14,10 @@ include("utils.jl")
 
 include("loss-penalty/generic.jl")
 include("loss-penalty/standard.jl")
+include("loss-penalty/utils.jl")
 
 include("glr/constructors.jl")
-include("glr/tools.jl")
+include("glr/utils.jl")
 include("glr/gradhess.jl")
 
 include("fit/solvers.jl")
