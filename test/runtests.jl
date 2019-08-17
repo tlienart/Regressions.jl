@@ -4,6 +4,8 @@ m(s) = println("\n== $s ==\n")
 
 m("UTILS"); include("utils.jl")
 
+@show ENV
+
 m("LOSS-PENALTY"); include("loss-penalty.jl")
 
 m("GLR"); begin
