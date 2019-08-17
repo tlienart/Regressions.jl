@@ -7,4 +7,7 @@
     @test R.getscale_l1(a) == 0.3
     @test R.getscale_l2(c) == 0.2
     @test R.getscale_l1(c) == 0.6
+
+    @test R.getscale_l2(2*L2Penalty()) == 2
+    @test R.getscale_l1(3.4*L1Penalty()) == 3.4
 end

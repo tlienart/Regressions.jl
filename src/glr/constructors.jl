@@ -1,5 +1,6 @@
 export GeneralizedLinearRegression, GLR,
-        LinearRegression, RidgeRegression, LassoRegression,
+        LinearRegression, RidgeRegression,
+        LassoRegression, ElasticNetRegression,
         LogisticRegression, MultinomialRegression
 
 """
@@ -56,6 +57,18 @@ Objective function: ``|y - Xθ|₂²/2 + λ|θ|₁``
 function LassoRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true)
     check_pos(λ)
     GLR(fit_intercept=fit_intercept, penalty=lambda*L1Penalty())
+end
+
+
+"""
+$SIGNATURES
+
+Objective function: ``|y - Xθ|₂²/2 + λ|θ|₂²/2 + γ|θ|₁``
+"""
+function ElasticNetRegression(λ::Real=1.0, γ::Real=1.0; lambda::Real=λ, gamma::Real=γ,
+                             fit_intercept::Bool=true)
+    check_pos.((λ,γ))
+    GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty()+γ*L1Penalty())
 end
 
 

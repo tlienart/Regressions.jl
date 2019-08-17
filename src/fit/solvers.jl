@@ -1,13 +1,18 @@
 export Analytical, CG,
         Newton, NewtonCG,
         LBFGS,
-        FISTA
-        #        ProxGD, ISTA,
-#        QuasiNewton, BFGS, LBFGS
+        ProxGrad, FISTA
+
+# =====
+# TODO
+# * all - pick linesearch
+# * NewtonCG number of inner iter
+# * FISTA field to enforce descent
+# ====
 
 abstract type Solver end
 
-# =====================
+# ===================== analytical.jl
 
 @with_kw struct Analytical <: Solver
     iterative::Bool = false
@@ -16,22 +21,19 @@ end
 
 CG() = Analytical(; iterative=true)
 
-# =====================
+# ===================== newton.jl
 
 struct Newton <: Solver end
 
 struct NewtonCG <: Solver end
 
-# =====================
+struct LBFGS <: Solver end
 
-abstract type QuasiNewton <: Solver end
+# struct BFGS <: Solver end
 
-struct LBFGS <: QuasiNewton end
+# ===================== pgrad.jl
 
-#struct BFGS <: QuasiNewton end
+struct ProxGrad <: Solver end
 
-# =====================
-
-struct FISTA <: Solver end
-
-#struct FISTAD <: Solver end # <= merge it into FISTA with a keyword "enforce decent" or something
+struct AccelProxGrad <: Solver end
+const FISTA = AccelProxGrad

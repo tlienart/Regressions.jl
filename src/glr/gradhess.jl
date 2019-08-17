@@ -1,5 +1,6 @@
 # fg! -- objective function and gradient (avoiding recomputations)
 # Hv! -- application of the Hessian
+# smooth_fg! -- objective associated with the smooth part of the objective
 
 # ----------------------- #
 #  -- Ridge Regression -- #
@@ -10,6 +11,25 @@
 # NOTE:
 # * Hv! used in iterative solution
 # ---------------------------------------------------------
+
+function smooth_fg!(glr::GLR{L2Loss,<:Union{L1R,CompositePenalty}}, X, y)
+    λ = getscale_l2(glr.penalty)
+    # Smooth part is L2Loss + L2Penalty
+    p = size(X, 2)
+    (g, θ) -> begin
+        v = apply_X(X, θ)
+        if glr.fit_intercept
+            t = v .- y
+            mul!(view(g, 1:p), X', v .- y)
+            g[end] = sum(t)
+            g .+= λ .* θ
+        else
+            mul!(g, X', v .- y)
+        end
+        return sum(abs2.(v .- y))/2 + λ * sum(abs2.(θ))/2
+    end
+end
+
 
 function Hv!(glr::GLR{L2Loss,<:L2R}, X, y)
     n, p = size(X)
@@ -48,9 +68,9 @@ end
 # ---------------------------------------------------------
 
 function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
-    J    = obj(glr) # GLR objective (loss+penalty)
-    n, p = size(X)
-    λ    = getscale(glr.penalty)
+    J = obj(glr) # GLR objective (loss+penalty)
+    p = size(X, 2)
+    λ = getscale(glr.penalty)
     if glr.fit_intercept
         (f, g, H, θ) -> begin
             v = apply_X(X, θ)
@@ -162,9 +182,9 @@ end
 
 
 function Hv!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
-    n, p = size(X)
-    λ    = getscale(glr.penalty)
-    c    = maximum(y)
+    p = size(X, 2)
+    λ = getscale(glr.penalty)
+    c = maximum(y)
     # NOTE:
     # * ideally P and Q should be recuperated from gradient computations (fghv!)
     # * assumption that c is small so that storing matrices of size n * c is not too bad; if c

@@ -25,6 +25,25 @@ y = rand(n)
     @test hv ≈ X'*(X*v) .+ λ * v
 end
 
+@testset "GH> EN/Lassso" begin
+    λ = 3.4
+    γ = 2.7
+    r = LassoRegression(λ)
+    fg! = R.smooth_fg!(r, X, y)
+    g = similar(θ1)
+    f = fg!(g, θ1)
+    @test f ≈ sum(abs2.(X_*θ1 .- y))/2
+    @test g ≈ X_'*(X_*θ1 .- y)
+
+    r = ElasticNetRegression(λ, γ)
+    fg! = R.smooth_fg!(r, X, y)
+    g = similar(θ1)
+    f = fg!(g, θ1)
+    @test f ≈ sum(abs2.(X_*θ1 .- y))/2 + λ * norm(θ1)^2/2
+    @test g ≈ X_' * (X_*θ1 .- y) .+ λ * θ1
+end
+
+
 @testset "GH> LogitL2" begin
     # fgh! without fit_intercept
     λ = 0.5

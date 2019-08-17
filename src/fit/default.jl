@@ -10,7 +10,7 @@ _solver(::GLR{LogisticLoss,<:L2R}, 	  np::NTuple{2,Int}) = LBFGS()
 _solver(::GLR{MultinomialLoss,<:L2R}, np::NTuple{2,Int}) = LBFGS()
 
 function _solver(glr::GLR{L2Loss,CompositePenalty}, np::NTuple{2,Int})
-	is_elasticnet(glr.penalty) && return FISTA()
+	is_elnet(glr.penalty) && return FISTA()
 	@error "Not yet implemented"
 end
 

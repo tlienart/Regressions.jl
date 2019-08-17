@@ -1,4 +1,4 @@
-# Newton and Quasi Newton solvers
+# Newton and quasi Newton solvers
 
 ## LOGISTIC ==============
 
