@@ -1,4 +1,3 @@
-
 Random.seed!(1234)
 n, p = 50, 5
 X = randn(n, p)
