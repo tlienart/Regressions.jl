@@ -159,3 +159,29 @@ function fg!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
         end
     end
 end
+
+
+function Hv!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
+    n, p = size(X)
+    λ    = getscale(glr.penalty)
+    c    = maximum(y)
+    # NOTE: ideally P and Q should be recuperated from gradient computations (fghv!)
+    (Hv, θ, v) -> begin
+        P  = apply_X(X, θ, c)    # P_ik = <x_i, θ_k>                  // dims n * c; O(npc)
+        Q  = apply_X(X, v, c)    # Q_ik = <x_i, v_k>                  // dims n * c; O(npc)
+        M  = exp.(P)             # M_ik = exp<x_i, w_k>               // dims n * c;
+        MQ = M .* Q              #                                    // dims n * c; O(nc)
+        ρ  = 1 ./ sum(M, dims=2) # ρ_i = 1/Z_i = 1/∑_k exp<x_i, w_k>  // dims n
+        κ  = sum(MQ, dims=2)     # κ_i  = ∑_k exp<x_i, w_k><x_i, v_k> // dims n
+        γ  = κ .* ρ.^2           # γ_i  = κ_i / Z_i^2                 // dims n
+        # Hv
+        U      = (ρ .* MQ) .- (γ .* M)
+        Hv_mat = X' * U          # O(npc)
+        if glr.fit_intercept
+            Hv .= reshape(vcat(Hv_mat, sum(U, dims=1)), (p+1)*c)
+        else
+            Hv .= reshape(Hv_mat, p * c)
+        end
+        Hv .+= λ .* v
+    end
+end
