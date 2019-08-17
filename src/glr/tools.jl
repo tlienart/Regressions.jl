@@ -12,10 +12,4 @@ $SIGNATURES
 
 Return a function computing the objective at a given point `θ`.
 """
-function objfun(glr::GLR, X, y)
-    if glr.fit_intercept
-        θ -> obj(glr)(y, (X * θ[1:end-1]) .+ θ[end], θ)
-    else
-        θ -> obj(glr)(y, X * θ, θ)
-    end
-end
+objfun(glr::GLR, X, y; c::Int=0) = θ -> obj(glr)(y, apply_X(X, θ, c), θ)
