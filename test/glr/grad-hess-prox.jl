@@ -25,13 +25,32 @@ y = rand(n)
     @test hv ≈ X'*(X*v) .+ λ * v
 end
 
+@testset "GH> EN/Lassso" begin
+    λ = 3.4
+    γ = 2.7
+    r = LassoRegression(λ)
+    fg! = R.smooth_fg!(r, X, y)
+    g = similar(θ1)
+    f = fg!(g, θ1)
+    @test f ≈ sum(abs2.(X_*θ1 .- y))/2
+    @test g ≈ X_'*(X_*θ1 .- y)
+
+    r = ElasticNetRegression(λ, γ)
+    fg! = R.smooth_fg!(r, X, y)
+    g = similar(θ1)
+    f = fg!(g, θ1)
+    @test f ≈ sum(abs2.(X_*θ1 .- y))/2 + λ * norm(θ1)^2/2
+    @test g ≈ X_' * (X_*θ1 .- y) .+ λ * θ1
+end
+
+
 @testset "GH> LogitL2" begin
     # fgh! without fit_intercept
     λ = 0.5
     lr = LogisticRegression(λ; fit_intercept=false)
     fgh! = R.fgh!(lr, X, y)
     θ = randn(p)
-    J = objfun(lr, X, y)
+    J = objective(lr, X, y)
     f = 0.0
     g = similar(θ)
     H = zeros(p, p)
@@ -45,7 +64,7 @@ end
     lr1 = LogisticRegression(λ)
     fgh! = R.fgh!(lr1, X, y)
     θ1 = randn(p+1)
-    J  = objfun(lr1, X, y)
+    J  = objective(lr1, X, y)
     f1 = 0.0
     g1 = similar(θ1)
     H1 = zeros(p+1, p+1)

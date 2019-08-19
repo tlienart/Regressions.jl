@@ -14,14 +14,19 @@ include("utils.jl")
 
 include("loss-penalty/generic.jl")
 include("loss-penalty/standard.jl")
+include("loss-penalty/utils.jl")
 
 include("glr/constructors.jl")
-include("glr/tools.jl")
-include("glr/gradhess.jl")
+include("glr/d_l2loss.jl")
+include("glr/d_logistic.jl")
+include("glr/prox.jl")
+include("glr/utils.jl")
 
 include("fit/solvers.jl")
 include("fit/default.jl")
 include("fit/analytical.jl")
+# include("fit/grad.jl")
 include("fit/newton.jl")
+include("fit/proxgrad.jl")
 
 end # module

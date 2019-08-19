@@ -14,7 +14,7 @@ y1 = y1 .* ones(Int, n) .- .!y1 .* ones(Int, n)
     # No intercept
     λ = 5.0
     lr = LogisticRegression(λ; fit_intercept=false)
-    J  = objfun(lr, X, y)
+    J  = objective(lr, X, y)
     o  = LogisticLoss() + λ * L2Penalty()
     @test J(θ) == o(y, X*θ, θ)
     @test J(θ)          ≤ 282.1
@@ -27,7 +27,7 @@ y1 = y1 .* ones(Int, n) .- .!y1 .* ones(Int, n)
 
     # With intercept
     lr1 = LogisticRegression(λ)
-    J = objfun(lr1, X, y1)
+    J = objective(lr1, X, y1)
     @test J(θ1)          ≤ 214
     θ1_newton = fit(lr1, X, y1, solver=Newton())
     @test J(θ1_newton)   ≤ 209.4
@@ -43,7 +43,7 @@ y1 = y1 .* ones(Int, n) .- .!y1 .* ones(Int, n)
         lr_sk_ncg = SK_LM.LogisticRegression(C=1.0/λ, solver="newton-cg")
         lr_sk_ncg.fit(X, y1)
         θ1_sk_ncg = vcat(lr_sk_ncg.coef_[:], lr_sk_ncg.intercept_)
-        @test J(θ_sk_ncg)    ≤ 209.5
+        @test J(θ1_sk_ncg)   ≤ 209.5
         lr_sk_lbfgs = SK_LM.LogisticRegression(C=1.0/λ, solver="lbfgs")
         lr_sk_lbfgs.fit(X, y1)
         θ1_sk_lbfgs = vcat(lr_sk_lbfgs.coef_[:], lr_sk_lbfgs.intercept_)
@@ -92,7 +92,7 @@ end
     # No intercept
     λ = 5.0
     mnr = MultinomialRegression(λ; fit_intercept=false)
-    J  = objfun(mnr, X, y; c=c)
+    J  = objective(mnr, X, y; c=c)
     @test J(θ)          ≤ 370.5
     θ_newtoncg = fit(mnr, X, y, solver=NewtonCG())
     @test J(θ_newtoncg) ≤ 334.3
@@ -101,7 +101,7 @@ end
 
     #  With intercept
     mnr = MultinomialRegression(λ)
-    J  = objfun(mnr, X, y1; c=c)
+    J  = objective(mnr, X, y1; c=c)
     @test  J(θ1)        ≤ 315.7
 
     θ_newtoncg = fit(mnr, X, y1, solver=NewtonCG())
@@ -110,14 +110,11 @@ end
     @test J(θ_lbfgs)    ≤ 300.7
 
     if SKLEARN
-        # This checks that the parameters recovered using Sklearn lead
-        # to a similar loss than the one given by our code to verify the
-        # correctness of the code.
         lr_sk_ncg = SK_LM.LogisticRegression(C=1.0/λ, solver="newton-cg",
                                              multi_class="multinomial")
         lr_sk_ncg.fit(X, y1)
         θ1_sk_ncg = reshape(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'), (p+1)*c)
-        @test J(θ1_sk_ncg) ≤ 300.72
+        @test J(θ1_sk_ncg)   ≤ 300.72
         lr_sk_lbfgs = SK_LM.LogisticRegression(C=1.0/λ, solver="lbfgs")
         lr_sk_lbfgs.fit(X, y1)
         θ1_sk_lbfgs = reshape(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'), (p+1)*c)

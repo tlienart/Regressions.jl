@@ -1,4 +1,4 @@
-# Newton and Quasi Newton solvers
+# Newton and quasi Newton solvers
 
 ## LOGISTIC ==============
 
@@ -36,7 +36,7 @@ where κ₁ is the number of Newton steps and κ₂ is the average number of CG 
 function _fit(glr::GLR{LogisticLoss,<:L2R}, solver::NewtonCG, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     θ₀   = zeros(p)
-    _f   = objfun(glr, X, y)
+    _f   = objective(glr, X, y)
     _fg! = (g, θ) -> fgh!(glr, X, y)(0.0, g, nothing, θ) # XXX: Optim.jl/issues/738
     _Hv! = Hv!(glr, X, y)
     opt  = Optim.TwiceDifferentiableHV(_f, _fg!, _Hv!, θ₀)
@@ -82,7 +82,7 @@ function _fit(glr::GLR{MultinomialLoss,<:L2R}, solver::NewtonCG, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     c    = maximum(y)
     θ₀   = zeros(p * c)
-    _f   = objfun(glr, X, y; c=c)
+    _f   = objective(glr, X, y; c=c)
     _fg! = (g, θ) -> fg!(glr, X, y)(0.0, g, θ) # XXX: Optim.jl/issues/738
     _Hv! = Hv!(glr, X, y)
     opt  = Optim.TwiceDifferentiableHV(_f, _fg!, _Hv!, θ₀)
