@@ -38,13 +38,20 @@ The core aims of this package are:
 While the functionalities in this package overlap with a number of existing packages, the hope is that this package will offer a general entry point for all of them in a way that won't require too much thinking from an end user (similar to how someone would use the tools from `sklearn.linear_model`).
 If you're looking for specific functionalities/algorithms, it's probably a good idea to look at one of the packages below:
 
-- (unmaintained) [Regression.jl](https://github.com/lindahua/Regression.jl) that was released by [Dahua Lin](https://github.com/lindahua) under the MIT license for Julia 0.4.
 - [SparseRegression.jl](https://github.com/joshday/SparseRegression.jl)
-- [LASSO.jl](https://github.com/JuliaStats/Lasso.jl)
-- (unmaintained )[LARS.jl](https://github.com/simonster/LARS.jl)
-- ...
+- [Lasso.jl](https://github.com/JuliaStats/Lasso.jl)
+- [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
+- (unmaintained) [Regression.jl](https://github.com/lindahua/Regression.jl)
+- (unmaintained) [LARS.jl](https://github.com/simonster/LARS.jl)
+- (unmaintained) [FISTA.jl](https://github.com/klkeys/FISTA.jl)
 
-There's also [GLM](https://github.com/JuliaStats/GLM.jl) which is more geared towards statistical analysis and does not (as far as I'm aware) lack a few key functionalities for ML such as penalised regressions or multinomial regression.
+There's also [GLM](https://github.com/JuliaStats/GLM.jl) which is more geared towards statistical analysis for reasonably-sized datasets and does (as far as I'm aware) lack a few key functionalities for ML such as penalised regressions or multinomial regression.
+
+## References
+
+* **Minka**, [Algorithms for Maximum Likelihood Regression](https://tminka.github.io/papers/logreg/minka-logreg.pdf), 2003. For a review of numerical methods for the binary Logistic Regression.
+* **Beck** and **Teboulle**, [A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems](https://tinyurl.com/beck-teboulle-fista), 2009. For the ISTA and FISTA algorithms.
+* **Raman** et al, [DS-MLR: Exploiting Double Separability for Scaling up DistributedMultinomial Logistic Regression](https://arxiv.org/pdf/1604.04706.pdf), 2018. For a discussion of multinomial regression.
 
 ## Dev notes
 

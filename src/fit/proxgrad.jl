@@ -25,6 +25,12 @@ function _fit(glr::GLR, pgd::ProxGrad, X, y)
     # loop-related
     k, tol = 1, Inf
     while k ≤ pgd.max_iter && tol > pgd.tol
+        # --------------------------------------------------
+        # This loop corresponds to the implementation of the
+        # FISTA + Backtracking  algorithm in Beck & Teboulle
+        # "A Fast Iterative Shrinkage Thresholding Algorithm
+        # for Linear Inverse Problems" (page 193)
+        # --------------------------------------------------
         # 1. linear extrapolation of past iterates
         ω   = (1.0 + sqrt(1.0 + 4.0 * ω_^2)) / 2.0
         ρ   = acc * ω__ / ω  # ω_{k-2}/ω; note that ρ != 0 only as k > 2
