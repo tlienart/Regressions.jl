@@ -50,7 +50,7 @@ end
     lr = LogisticRegression(λ; fit_intercept=false)
     fgh! = R.fgh!(lr, X, y)
     θ = randn(p)
-    J = objfun(lr, X, y)
+    J = objective(lr, X, y)
     f = 0.0
     g = similar(θ)
     H = zeros(p, p)
@@ -64,7 +64,7 @@ end
     lr1 = LogisticRegression(λ)
     fgh! = R.fgh!(lr1, X, y)
     θ1 = randn(p+1)
-    J  = objfun(lr1, X, y)
+    J  = objective(lr1, X, y)
     f1 = 0.0
     g1 = similar(θ1)
     H1 = zeros(p+1, p+1)

@@ -1,7 +1,7 @@
 export Analytical, CG,
         Newton, NewtonCG,
         LBFGS,
-        ProxGrad, FISTA
+        ProxGrad, FISTA, ISTA
 
 # =====
 # TODO
@@ -33,7 +33,13 @@ struct LBFGS <: Solver end
 
 # ===================== pgrad.jl
 
-struct ProxGrad <: Solver end
+@with_kw struct ProxGrad <: Solver
+    accel::Bool    = false # use Nesterov style acceleration (see also FISTA)
+    max_iter::Int  = 1000  # max number of overall iterations
+    tol::Float64   = 1e-4  # tolerance over relative change of θ i.e. norm(θ-θ_)/norm(θ)
+    max_inner::Int = 100   # β^max_inner should be > 1e-10
+    β::Float64     = 0.8   # in (0, 1); shrinkage in the backtracking step
+end
 
-struct AccelProxGrad <: Solver end
-const FISTA = AccelProxGrad
+FISTA() = ProxGrad(accel = true)
+ISTA()  = ProxGrad(accel = false)

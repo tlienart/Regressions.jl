@@ -1,3 +1,4 @@
+is_l1(p::Penalty) = isa(p, L1R)
 function is_elnet(cp::CompositePenalty)
     length(cp.penalties) == 2 || return false
     isa(cp.penalties[1], L2R) && isa(cp.penalties[2], L1R) && return true

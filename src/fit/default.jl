@@ -9,8 +9,8 @@ _solver(::GLR{L2Loss,<:L2R},	 	  np::NTuple{2,Int}) = Analytical()
 _solver(::GLR{LogisticLoss,<:L2R}, 	  np::NTuple{2,Int}) = LBFGS()
 _solver(::GLR{MultinomialLoss,<:L2R}, np::NTuple{2,Int}) = LBFGS()
 
-function _solver(glr::GLR{L2Loss,CompositePenalty}, np::NTuple{2,Int})
-	is_elnet(glr.penalty) && return FISTA()
+function _solver(glr::GLR{L2Loss,<:Union{L1R,CompositePenalty}}, np::NTuple{2,Int})
+	(is_l1(glr.penalty) || is_elnet(glr.penalty)) && return FISTA()
 	@error "Not yet implemented"
 end
 
