@@ -20,10 +20,10 @@ The core aims of this package are:
 
 ## Implemented
 
-| Regressors                | Formulation (⭒)              | Available solvers        | Comments |
-| :------------------------ | :--------------------------- | :----------------------- | :------- |
-| OLS & Ridge               | L2Loss + No/L2Penalty        | Analytical (†) or CG (‡) |          |
-| Lasso & ElasticNet        | L2Loss + No/L2 + L1          | (F)ISTA (⌂)              |          |
+| Regressors                 | Formulation (⭒)    | Available solvers        | Comments |
+| :------------------------- | :----------------- | :----------------------- | :------- |
+| OLS & Ridge                | L2Loss + 0/L2      | Analytical (†) or CG (‡) |          |
+| Lasso & Elastic-Net        | L2Loss + 0/L2 + L1 | (F)ISTA (⌂)              |          |
 
 * (⭒) "0" stands for no penalty
 * (†) Analytical means the solution is computed in "one shot" using the `\` solver,
