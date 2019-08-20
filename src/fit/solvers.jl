@@ -41,5 +41,5 @@ struct LBFGS <: Solver end
     β::Float64     = 0.8   # in (0, 1); shrinkage in the backtracking step
 end
 
-FISTA() = ProxGrad(accel = true)
-ISTA()  = ProxGrad(accel = false)
+FISTA(; kwa...) = ProxGrad(;accel = true, kwa...)
+ISTA(; kwa...)  = ProxGrad(;accel = false, kwa...)

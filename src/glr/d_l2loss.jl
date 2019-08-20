@@ -40,21 +40,15 @@ end
 # ----------------------------- #
 #  -- Lasso/Elnet Regression -- #
 # ----------------------------- #
-# ->  J(θ)  = f(θ) + g(θ)
+# ->  J(θ)  = f(θ) + r(θ)
 # ->  f(θ)  = |Xθ - y|₂²/2 + λ|θ|₂²  // smooth
-# ->  g(θ)  = γ|θ|₁                  // non-smooth with prox
+# ->  r(θ)  = γ|θ|₁                  // non-smooth with prox
 # -> ∇f(θ)  = X'(Xθ - y) + λθ
 # -> ∇²f(θ) = X'X + λI
-# -> prox g = soft-thresh
+# -> prox_r = soft-thresh
 # ---------------------------------------------------------
 
-function smooth_f(glr::GLR{L2Loss,<:Union{L1R,CompositePenalty}}, X, y)
-    λ = getscale_l2(glr.penalty)
-    p = size(X, 2)
-    θ -> sum(abs2.(apply_X(X, θ) .- y))/2 + λ * sum(abs2.(θ))/2
-end
-
-function smooth_fg!(glr::GLR{L2Loss,<:Union{L1R,CompositePenalty}}, X, y)
+function smooth_fg!(glr::GLR{L2Loss,<:ENR}, X, y)
     λ = getscale_l2(glr.penalty)
     p = size(X, 2)
     (g, θ) -> begin
