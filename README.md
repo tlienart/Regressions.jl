@@ -4,19 +4,20 @@
 | :------------ | :------- | :------------ |
 | [![Build Status](https://travis-ci.org/tlienart/Regressions.jl.svg?branch=master)](https://travis-ci.org/tlienart/Regressions.jl) | [![codecov.io](http://codecov.io/github/tlienart/Regressions.jl/coverage.svg?branch=master)](http://codecov.io/github/tlienart/Regressions.jl?branch=master) | TBA |
 
-This is a convenience package gathering functionalities to solve a number of generalised linear regression problems of the form
+This is a convenience package gathering functionalities to solve a number of generalised linear regression/classification problems which, inherently, correspond to an optimisation problem of the form
 
 ```
 L(y, Xθ) + P(θ)
 ```
 
 where `L` is a loss function and `P`  is a penalty function (both of those can be scaled or composed).
+Additional regression/classification methods which do not directly correspond to this formulation may be added in the future.
 
 The core aims of this package are:
 
 - make these regressions models "easy to call" and callable in a unified way,
 - interface with [`MLJ.jl`](https://github.com/alan-turing-institute/MLJ.jl),
-- high performances including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl) and maybe [`ProximalAlgorithms.jl`](https://github.com/kul-forbes/ProximalAlgorithms.jl) in the future.
+- focus on performance including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl).
 
 ## Implemented
 
