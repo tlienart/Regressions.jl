@@ -47,6 +47,7 @@ const LPCost{p} = Union{LPLoss{p},LPPenalty{p}}
 
 const L1R = ScaledPenalty{L1Penalty}
 const L2R = Union{NoPenalty,ScaledPenalty{L2Penalty}}
+const ENR = Union{L1R,CompositePenalty}
 
 """
 $SIGNATURES
