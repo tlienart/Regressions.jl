@@ -1,7 +1,7 @@
 # Regressions.jl
 
 | [MacOS/Linux] | Coverage | Documentation |
-| :-----------: | :------: | :-----------: |
+| :------------ | :------- | :------------ |
 | [![Build Status](https://travis-ci.org/tlienart/Regressions.jl.svg?branch=master)](https://travis-ci.org/tlienart/Regressions.jl) | [![codecov.io](http://codecov.io/github/tlienart/Regressions.jl/coverage.svg?branch=master)](http://codecov.io/github/tlienart/Regressions.jl?branch=master) | TBA |
 
 This is a convenience package gathering functionalities to solve a number of generalised linear regression problems of the form
@@ -20,8 +20,8 @@ The core aims of this package are:
 
 ## Implemented
 
-| Model                     | Formulation (⋆)              | Available solvers        | Comments |
-| :-----------------------: | :--------------------------: | :----------------------: | :------: |
+| Model                     | Formulation (⭒)              | Available solvers        | Comments |
+| :------------------------ | :--------------------------- | :----------------------- | :------- |
 | OLS & Ridge               | L2Loss + No/L2Penalty        | Analytical (†) or CG (‡) |          |
 | Lasso & ElasticNet        | L2Loss + No/L2 + L1          | (F)ISTA (⌂)              |          |
 | Logistic 0/L2             | LogisticLoss + No/L2         | Newton, Newton-CG, LBFGS | `yᵢ∈{±1}`|
@@ -29,7 +29,7 @@ The core aims of this package are:
 | Multinomial 0/L2          | MultinomialLoss + No/L2      | Newton-CG, LBFGS         |          |
 | Multinomial L1/ElasticNet | MultinomialLoss + No/L2 + L1 | ISTA, FISTA              |          |
 
-* (⋆) "No" stands for no penalty
+* (⭒) "No" stands for no penalty
 * (†) Analytical means the solution is computed in "one shot" using the `\` solver,
 * (‡) CG = conjugate gradient
 * (⌂) (Accelerated) Proximal Gradient Descent
@@ -46,18 +46,18 @@ Unless otherwise specified:
 
 ### Possible future models
 
-| Model                     | Formulation (⋆)              | Comments |
-| :-----------------------: | :--------------------------: | :------: |
-| Huber 0/L2                | HuberLosss + No/L2           |  ⋆       |
-| Huber L1/ElasticNet       | HuberLosss + No/L2 + L1      |  ⋆       |
-| Group Lasso               | L2Loss + ∑L1 over groups     |  ⋆       |
-| Adaptive Lasso            | L2Loss + weighted L1         |  ⋆ [A](http://myweb.uiowa.edu/pbreheny/7600/s16/notes/2-29.pdf) |
+| Model                     | Formulation (⭒)              | Comments |
+| :------------------------ | :--------------------------- | :------- |
+| Huber 0/L2                | HuberLosss + No/L2           |  ⭒       |
+| Huber L1/ElasticNet       | HuberLosss + No/L2 + L1      |  ⭒       |
+| Group Lasso               | L2Loss + ∑L1 over groups     |  ⭒       |
+| Adaptive Lasso            | L2Loss + weighted L1         |  ⭒ [A](http://myweb.uiowa.edu/pbreheny/7600/s16/notes/2-29.pdf) |
 | LAD                       | L1Loss                       | People seem to use a simplex algorithm (Barrodale and Roberts), prox like ADMM should be ok too [G](https://web.stanford.edu/~boyd/papers/admm/least_abs_deviations/lad.html), or [F](https://link.springer.com/content/pdf/10.1155/S1110865704401139.pdf) |
 | SCAD                      | L2Loss + SCAD                |  A, [B](https://arxiv.org/abs/0903.5474), [C](https://orfe.princeton.edu/~jqfan/papers/01/penlike.pdf) |
 | MCP                       | L2Loss + MCP                 |  A        |
 | OMP                       | L2Loss + L0Loss              |  [D](https://www.cs.technion.ac.il/~ronrubin/Publications/KSVD-OMP-v2.pdf) |
 
-* (⋆) should be added soon
+* (⭒) should be added soon
 
 
 #### Other regression models
@@ -67,7 +67,7 @@ There are a number of other regression models that may be included in this packa
 In some cases it might make more sense to just use [GLM.jl](https://github.com/JuliaStats/GLM.jl).
 
 | Model                       | Note  | Link(s)                                            |
-| :-------------------------: | :---: | :------------------------------------------------: |
+| :-------------------------- | :---- | :------------------------------------------------- |
 | LARS                        | --    |                                                    |
 | Quantile Regression         | --    | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
 | Passive Agressive           | --    | [Crammer et al, 2006](http://jmlr.csail.mit.edu/papers/volume7/crammer06a/crammer06a.pdf) |
