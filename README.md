@@ -76,6 +76,7 @@ In some cases it will make more sense to just use [GLM.jl](https://github.com/Ju
 | Ordinal regression          | _need to figure out how they work_ | [E](https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf)|
 | Count regression            | _need to figure out how they work_ | [R](https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf) |
 | Robust M estimators         |       | [F](https://arxiv.org/pdf/1508.01967.pdf) |
+| Perceptron, MIRA classifier | Sklearn just does OVA with binary in SGDClassif      | [H](https://cl.lingfil.uu.se/~nivre/master/ml7-18.pdf) |
 
 
 ## What about other packages
