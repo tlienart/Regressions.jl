@@ -20,16 +20,16 @@ The core aims of this package are:
 
 ## Implemented
 
-| Model              | Formulation                  | Available solvers        | Comments |
-| :----------------: | :--------------------------: | :----------------------: | :------: |
-| OLS & Ridge        | L2Loss + No/L2Penalty        | Analytical (†) or CG (‡) |          |
-| Lasso & ElasticNet | L2Loss + No/L2 + L1          | (F)ISTA (⌂)              |          |
-| Logistic 0/L2      | LogisticLoss + No/L2         | Newton, Newton-CG, LBFGS |          |
-| Logistic ElNet     | LogisticLoss + No/L2 + L1    | (F)ISTA                  |          |
-| Multinomial 0/L2   | MultinomialLoss + No/L2      | Newton-CG, LBFGS         |          |
-| Multinomial Elnet  | MultinomialLoss + No/L2 + L1 | ISTA, FISTA              |          |
+| Model                     | Formulation (⋆)              | Available solvers        | Comments |
+| :-----------------------: | :--------------------------: | :----------------------: | :------: |
+| OLS & Ridge               | L2Loss + No/L2Penalty        | Analytical (†) or CG (‡) |          |
+| Lasso & ElasticNet        | L2Loss + No/L2 + L1          | (F)ISTA (⌂)              |          |
+| Logistic 0/L2             | LogisticLoss + No/L2         | Newton, Newton-CG, LBFGS | `yᵢ∈{±1}`|
+| Logistic L1/ElasticNet    | LogisticLoss + No/L2 + L1    | (F)ISTA                  | `yᵢ∈{±1}`|
+| Multinomial 0/L2          | MultinomialLoss + No/L2      | Newton-CG, LBFGS         |          |
+| Multinomial L1/ElasticNet | MultinomialLoss + No/L2 + L1 | ISTA, FISTA              |          |
 
-
+* (⋆) "No" stands for no penalty
 * (†) Analytical means the solution is computed in "one shot" using the `\` solver,
 * (‡) CG = conjugate gradient
 * (⌂) (Accelerated) Proximal Gradient Descent
@@ -38,6 +38,10 @@ Unless otherwise specified:
 
 * Newton-like solvers use Hager - Zhang line search (default in [`Optim.jl`]((https://github.com/JuliaNLSolvers/Optim.jl)))
 * ISTA, FISTA solvers use backtracking line search and a shrinkage factor of `β=0.8`
+
+### Planned
+
+## Limitations
 
 ## What about other packages
 
