@@ -64,7 +64,7 @@ Unless otherwise specified:
 
 There are a number of other regression models that may be included in this package in the longer term but may not directly correspond to the paradigm `Loss+Penalty` introduced earlier.
 
-In some cases it might make more sense to just use [GLM.jl](https://github.com/JuliaStats/GLM.jl).
+In some cases it will make more sense to just use [GLM.jl](https://github.com/JuliaStats/GLM.jl).
 
 | Model                       | Note  | Link(s)                                            |
 | :-------------------------- | :---- | :------------------------------------------------- |
