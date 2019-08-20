@@ -3,7 +3,8 @@
 # Assumption: loss has gradient; penalty has prox e.g.: Lasso
 # J(θ) = f(θ) + r(θ) where f is smooth
 function _fit(glr::GLR, pgd::ProxGrad, X, y)
-    p = size(X, 2) + Int(glr.fit_intercept)
+    c = ifelse(isa(glr.loss, MultinomialLoss), length(unique(y)), 1)
+    p = (size(X, 2) + Int(glr.fit_intercept)) * c
     # vector caches + eval cache
     θ   = zeros(p) # θ_k
     Δθ  = zeros(p) # (θ_k - θ_{k-1})
@@ -18,7 +19,7 @@ function _fit(glr::GLR, pgd::ProxGrad, X, y)
     η   = 1.0  # stepsize (1/L)
     acc = ifelse(pgd.accel, 1.0, 0.0) # if 0, no extrapolation (ISTA)
     # functions
-    _f      = smooth_objective(glr, X, y)
+    _f      = smooth_objective(glr, X, y; c=c)
     _fg!    = smooth_fg!(glr, X, y)
     _prox!  = prox!(glr)
     bt_cond = θ̂ -> _f(θ̂) > fθ̄ + dot(θ̂ .- θ̄, ∇fθ̄) + sum(abs2.(θ̂ .- θ̄))/(2η)

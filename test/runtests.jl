@@ -1,4 +1,4 @@
-using Regressions, Test, LinearAlgebra, Random, Distributions
+using Regressions, Test, LinearAlgebra, Random
 DO_SKLEARN = true; include("testutils.jl")
 
 m("UTILS"); include("utils.jl")

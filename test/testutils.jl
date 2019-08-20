@@ -8,23 +8,35 @@ PY_RND = SKLEARN ? pyimport("random") : nothing
 
 m(s) = println("\n== $s ==\n")
 
-function generate_continuous(n, p; seed=0)
+nnz(θ) = sum(abs.(θ) .> 0)
+
+sparsify!(θ, s) = (θ .*= (rand(length(θ)) .< s))
+
+function generate_continuous(n, p; seed=0, sparse=1)
     Random.seed!(seed)
     X  = randn(n, p)
     X_ = R.augment_X(X, true)
     θ  = randn(p)
     θ1 = randn(p+1)
+    sparse < 1 && begin
+        sparsify!(θ, sparse)
+        sparsify!(θ1, sparse)
+    end
     y  = X*θ + 0.1 * randn(n)
     y1 = X_*θ1 + 0.1 * randn(n)
     return ((X, y, θ), (X_, y1, θ1))
 end
 
-function generate_binary(n, p; seed=0)
+function generate_binary(n, p; seed=0, sparse=1)
     Random.seed!(seed)
     X  = randn(n, p)
     X_ = R.augment_X(X, true)
     θ  = randn(p)
     θ1 = randn(p+1)
+    sparse < 1 && begin
+        sparsify!(θ, sparse)
+        sparsify!(θ1, sparse)
+    end
     y  = rand(n) .< R.σ.(X*θ)
     y  = y .* ones(Int, n) .- .!y .* ones(Int, n)
     y1 = rand(n) .< R.σ.(X_*θ1)
@@ -51,12 +63,16 @@ function multi_rand(Mp)
     return y
 end
 
-function generate_multiclass(n, p, c; seed=0)
+function generate_multiclass(n, p, c; seed=0, sparse=1)
     Random.seed!(seed)
     X   = randn(n, p)
     X_  = R.augment_X(X, true)
     θ   = randn(p * c)
     θ1  = randn((p+1) * c)
+    sparse < 1 && begin
+        sparsify!(θ, sparse)
+        sparsify!(θ1, sparse)
+    end
     y   = zeros(Int, n)
     y1  = zeros(Int, n)
 

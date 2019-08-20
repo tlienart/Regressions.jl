@@ -1,4 +1,5 @@
-((X, y, θ), (X_, y1, θ1)) = generate_continuous(100, 5; seed=52)
+n, p = 100, 5
+((X, y, θ), (X_, y1, θ1)) = generate_continuous(n, p; seed=52)
 
 @testset "linreg" begin
     lr = LinearRegression(fit_intercept=false)

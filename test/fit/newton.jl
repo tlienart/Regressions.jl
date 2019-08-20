@@ -1,4 +1,5 @@
-((X, y, θ), (X_, y1, θ1)) = generate_binary(500, 5; seed=52)
+n, p = 500, 5
+((X, y, θ), (X_, y1, θ1)) = generate_binary(n, p; seed=52)
 
 @testset "Logreg" begin
     # No intercept
@@ -41,39 +42,39 @@
     end
 end
 
-((X, y, θ), (X_, y1, θ1)) = generate_multiclass(500, 5, 3; seed=525)
+n, p, c = 500, 5, 4
+((X, y, θ), (X_, y1, θ1)) = generate_multiclass(n, p, c; seed=525)
 
 @testset "Multinomial" begin
     # No intercept
     λ = 5.0
     mnr = MultinomialRegression(λ; fit_intercept=false)
     J  = objective(mnr, X, y; c=c)
-    @test J(θ)          ≤ 368.86
+    @test J(θ)          ≤ 419.68
     θ_newtoncg = fit(mnr, X, y, solver=NewtonCG())
-    @test J(θ_newtoncg) ≤ 332.9
+    @test J(θ_newtoncg) ≤ 384.34
     θ_lbfgs = fit(mnr, X, y, solver=R.LBFGS())
-    @test J(θ_lbfgs)    ≤ 332.9
+    @test J(θ_lbfgs)    ≤ 384.34
 
     #  With intercept
     mnr = MultinomialRegression(λ)
     J  = objective(mnr, X, y1; c=c)
-    @test J(θ1)         ≤ 321.3
-
+    @test J(θ1)         ≤ 419.48
     θ_newtoncg = fit(mnr, X, y1, solver=NewtonCG())
-    @test J(θ_newtoncg) ≤ 306.4
+    @test J(θ_newtoncg) ≤ 388.76
     θ_lbfgs = fit(mnr, X, y1, solver=R.LBFGS())
-    @test J(θ_lbfgs)    ≤ 306.4
+    @test J(θ_lbfgs)    ≤ 388.76
 
     if SKLEARN
         lr_sk_ncg = SK_LM.LogisticRegression(C=1.0/λ, solver="newton-cg",
                                              multi_class="multinomial")
         lr_sk_ncg.fit(X, y1)
-        θ1_sk_ncg = reshape(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'), (p+1)*c)
-        @test J(θ1_sk_ncg)   ≤ 306.5
+        θ1_sk_ncg = vec(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'))
+        @test J(θ1_sk_ncg)   ≤ 390.31
         lr_sk_lbfgs = SK_LM.LogisticRegression(C=1.0/λ, solver="lbfgs",
                                                multi_class="multinomial")
         lr_sk_lbfgs.fit(X, y1)
-        θ1_sk_lbfgs = reshape(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'), (p+1)*c)
-        @test J(θ1_sk_lbfgs) ≤ 306.5
+        θ1_sk_lbfgs = vec(vcat(lr_sk_ncg.coef_', lr_sk_ncg.intercept_'))
+        @test J(θ1_sk_lbfgs) ≤ 390.31
     end
 end

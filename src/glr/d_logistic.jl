@@ -111,7 +111,7 @@ end
 
 function fg!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
     n, p = size(X)
-    c    = maximum(y)
+    c    = length(unique(y))
     λ    = getscale(glr.penalty)
     (f, g, θ) -> begin
         P = apply_X(X, θ, c)                                 # O(npc) store n * c
@@ -139,7 +139,7 @@ end
 function Hv!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
     p = size(X, 2)
     λ = getscale(glr.penalty)
-    c = maximum(y)
+    c = length(unique(y))
     # NOTE:
     # * ideally P and Q should be recuperated from gradient computations (fghv!)
     # * assumption that c is small so that storing matrices of size n * c is not too bad; if c
