@@ -1,4 +1,4 @@
-using Regressions, Test, LinearAlgebra, Random
+using Regressions, Test, LinearAlgebra, Random, Distributions
 DO_SKLEARN = true; include("testutils.jl")
 
 m("UTILS"); include("utils.jl")
@@ -17,4 +17,5 @@ end
 m("FIT"); begin
     include("fit/analytical.jl")
     include("fit/newton.jl")
+    include("fit/proxgrad.jl")
 end

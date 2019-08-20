@@ -1,8 +1,4 @@
-Random.seed!(52)
-n = 500
-p = 3
-X = randn(n, p)
-y = randn(n)
+((X, y, θ), (X_, y1, θ1)) = generate_continuous(100, 5; seed=52)
 
 @testset "linreg" begin
     lr = LinearRegression(fit_intercept=false)
@@ -11,11 +7,11 @@ y = randn(n)
     @test β_ref == fit(lr, X, y)
 
     # fit_intercept
-    β_ref = hcat(X, ones(n, 1)) \ y
-    @test β_ref == fit(lr1, X, y)
+    β_ref = X_ \ y1
+    @test β_ref == fit(lr1, X, y1)
 
     # == iterative solvers
-    β_cg = fit(lr1, X, y; solver=CG())
+    β_cg = fit(lr1, X, y1; solver=CG())
     @test norm(β_cg - β_ref) / norm(β_ref) ≤ 1e-12
 end
 
@@ -23,15 +19,14 @@ end
     λ = 1.0
     rr  = RidgeRegression(lambda=λ, fit_intercept=false)
     rr1 = RidgeRegression(λ)
-    X_  = R.augment_X(X, true)
 
     β_ref  = (X'X + λ*I) \ (X'y)
-    β_ref1 = (X_'X_ + λ*I) \ (X_'y)
+    β_ref1 = (X_'X_ + λ*I) \ (X_'y1)
     @test β_ref ≈ fit(rr, X, y)
-    @test β_ref1 ≈ fit(rr1, X, y)
+    @test β_ref1 ≈ fit(rr1, X, y1)
 
     β_cg = fit(rr, X, y; solver=CG())
-    β_cg1 = fit(rr1, X, y; solver=CG())
+    β_cg1 = fit(rr1, X, y1; solver=CG())
 
     @test norm(β_cg - β_ref) / norm(β_ref) ≤ 1e-12
     @test norm(β_cg1 - β_ref1) / norm(β_ref) ≤ 1e-12

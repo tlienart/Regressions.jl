@@ -48,7 +48,6 @@ function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
     end
 end
 
-
 function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
     n, p = size(X)
     λ    = getscale(glr.penalty)
@@ -80,6 +79,21 @@ function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
     end
 end
 
+# ----------------------------------- #
+#  -- L1/Elnet Logistic Regression -- #
+# ----------------------------------- #
+# ->  J(θ)  = f(θ) + r(θ)
+# ->  f(θ)  = LL + λ|θ|₂²  // smooth (LL = LogisticLoss)
+# ->  r(θ)  = γ|θ|₁        // non-smooth with prox
+# -> ∇f(θ)  = ∇LL + λθ
+# -> ∇²f(θ) = ∇²LL + λI
+# -> prox_r = soft-thresh
+# ---------------------------------------------------------
+
+function smooth_fg!(glr::GLR{LogisticLoss,<:ENR}, X, y)
+    smooth = get_smooth(glr)
+    (g, θ) -> fgh!(smooth, X, y)(0.0, g, nothing, θ)
+end
 
 # ---------------------------------- #
 #  -- Multinomial Regression (L2) -- #
@@ -122,7 +136,6 @@ function fg!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
     end
 end
 
-
 function Hv!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
     p = size(X, 2)
     λ = getscale(glr.penalty)
@@ -151,4 +164,20 @@ function Hv!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
         end
         Hv .+= λ .* v
     end
+end
+
+# -------------------------------------- #
+#  -- L1/Elnet Multinomial Regression -- #
+# -------------------------------------- #
+# ->  J(θ)  = f(θ) + r(θ)
+# ->  f(θ)  = MN + λ|θ|₂²  // smooth (MN = MultinomialLoss)
+# ->  r(θ)  = γ|θ|₁        // non-smooth with prox
+# -> ∇f(θ)  = ∇MN + λθ
+# -> ∇²f(θ) = ∇²MN + λI
+# -> prox_r = soft-thresh
+# ---------------------------------------------------------
+
+function smooth_fg!(glr::GLR{MultinomialLoss,<:ENR}, X, y)
+    smooth = get_smooth(glr)
+    (g, θ) -> fg!(smooth, X, y)(0.0, g, θ)
 end
