@@ -43,6 +43,7 @@ Unless otherwise specified:
 
 * The models are built and tested assuming `n > p`; if this doesn't hold, tricks should be employed to speed up computations; these have not been implemented yet.
 * Stochastic solvers that would be appropriate for huge models have not yet been implemented.
+* One vs All strategy for multi-class classification out of binary classifiers has not yet been implemented.
 
 ### Possible future models
 
@@ -56,6 +57,7 @@ Unless otherwise specified:
 | SCAD                      | L2Loss + SCAD                |  A, [B](https://arxiv.org/abs/0903.5474), [C](https://orfe.princeton.edu/~jqfan/papers/01/penlike.pdf) |
 | MCP                       | L2Loss + MCP                 |  A        |
 | OMP                       | L2Loss + L0Loss              |  [D](https://www.cs.technion.ac.il/~ronrubin/Publications/KSVD-OMP-v2.pdf) |
+| SGD Classifiers           | *Loss + No/L2/L1  and OVA    | [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html) |
 
 * (⭒) should be added soon
 
@@ -66,16 +68,19 @@ There are a number of other regression models that may be included in this packa
 
 In some cases it will make more sense to just use [GLM.jl](https://github.com/JuliaStats/GLM.jl).
 
-| Model                       | Note  | Link(s)                                            |
-| :-------------------------- | :---- | :------------------------------------------------- |
-| LARS                        | --    |                                                    |
-| Quantile Regression         | --    | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
-| Passive Agressive           | --    | [Crammer et al, 2006](http://jmlr.csail.mit.edu/papers/volume7/crammer06a/crammer06a.pdf) |
-| Orthogonal Matching Pursuit | --    | [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit) |
-| Least Median of Squares     | --    | [Rousseeuw, 1984](http://web.ipac.caltech.edu/staff/fmasci/home/astro_refs/LeastMedianOfSquares.pdf) |
+Sklearn's list: https://scikit-learn.org/stable/supervised_learning.html#supervised-learning
+
+| Model                       | Note        | Link(s)                                            |
+| :-------------------------- | :---------- | :------------------------------------------------- |
+| LARS                        | --          |                                                    |
+| Quantile Regression         | --          | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
+| Passive Agressive           | --          | [Crammer et al, 2006](http://jmlr.csail.mit.edu/papers/volume7/crammer06a/crammer06a.pdf) [SkL](https://scikit-learn.org/stable/modules/linear_model.html#passive-aggressive-algorithms) |
+| Orthogonal Matching Pursuit | --          | [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit) |
+| Least Median of Squares     | --          | [Rousseeuw, 1984](http://web.ipac.caltech.edu/staff/fmasci/home/astro_refs/LeastMedianOfSquares.pdf) |
+| RANSAC, Theil-Sen           | Robust reg  | [Overview RANSAC](http://www.cse.yorku.ca/~kosta/CompVis_Notes/ransac.pdf), [SkL](https://scikit-learn.org/stable/modules/linear_model.html#robustness-regression-outliers-and-modeling-errors), [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.TheilSenRegressor.html#sklearn.linear_model.TheilSenRegressor) |
 | Ordinal regression          | _need to figure out how they work_ | [E](https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf)|
 | Count regression            | _need to figure out how they work_ | [R](https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf) |
-| Robust M estimators         |       | [F](https://arxiv.org/pdf/1508.01967.pdf) |
+| Robust M estimators         | --          | [F](https://arxiv.org/pdf/1508.01967.pdf) |
 | Perceptron, MIRA classifier | Sklearn just does OVA with binary in SGDClassif      | [H](https://cl.lingfil.uu.se/~nivre/master/ml7-18.pdf) |
 
 
