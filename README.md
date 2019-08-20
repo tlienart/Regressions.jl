@@ -16,22 +16,28 @@ The core aims of this package are:
 
 - make these regressions models "easy to call" and callable in a unified way,
 - interface with [`MLJ.jl`](https://github.com/alan-turing-institute/MLJ.jl),
-- high performances including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`ProximalAlgorithms.jl`](https://github.com/kul-forbes/ProximalAlgorithms.jl) and [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl).
+- high performances including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl) and maybe [`ProximalAlgorithms.jl`](https://github.com/kul-forbes/ProximalAlgorithms.jl) in the future.
 
 ## Implemented
 
 | Model              | Formulation                  | Available solvers        | Comments |
 | :----------------: | :--------------------------: | :----------------------: | :------: |
 | OLS & Ridge        | L2Loss + No/L2Penalty        | Analytical (†) or CG (‡) |          |
-| Lasso & ElasticNet | L2Loss + No/L2 + L1          | ISTA, FISTA              |          |
+| Lasso & ElasticNet | L2Loss + No/L2 + L1          | (F)ISTA (⌂)              |          |
 | Logistic 0/L2      | LogisticLoss + No/L2         | Newton, Newton-CG, LBFGS |          |
-| Logistic ElNet     | LogisticLoss + No/L2 + L1    | ⚠ TBA ⚠                  |  ⚠⚠⚠     |
+| Logistic ElNet     | LogisticLoss + No/L2 + L1    | (F)ISTA                  |          |
 | Multinomial 0/L2   | MultinomialLoss + No/L2      | Newton-CG, LBFGS         |          |
-| Multinomial Elnet  | MultinomialLoss + No/L2 + L1 | ⚠ TBA ⚠                  |  ⚠⚠⚠     |
+| Multinomial Elnet  | MultinomialLoss + No/L2 + L1 | ISTA, FISTA              |          |
 
 
 * (†) Analytical means the solution is computed in "one shot" using the `\` solver,
 * (‡) CG = conjugate gradient
+* (⌂) (Accelerated) Proximal Gradient Descent
+
+Unless otherwise specified:
+
+* Newton-like solvers use Hager - Zhang line search (default in [`Optim.jl`]((https://github.com/JuliaNLSolvers/Optim.jl)))
+* ISTA, FISTA solvers use backtracking line search and a shrinkage factor of `β=0.8`
 
 ## What about other packages
 
