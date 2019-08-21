@@ -77,7 +77,8 @@ Sklearn's list: https://scikit-learn.org/stable/supervised_learning.html#supervi
 | Model                       | Note        | Link(s)                                            |
 | :-------------------------- | :---------- | :------------------------------------------------- |
 | LARS                        | --          |                                                    |
-| Quantile Regression         | --          | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
+| Quantile Regression         | --          | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl) |
+| L∞ approx (Logsumexp)       | --          | [slides](https://www.cs.ubc.ca/~schmidtm/Courses/340-F15/L15.pdf)|
 | Passive Agressive           | --          | [Crammer et al, 2006](http://jmlr.csail.mit.edu/papers/volume7/crammer06a/crammer06a.pdf) [SkL](https://scikit-learn.org/stable/modules/linear_model.html#passive-aggressive-algorithms) |
 | Orthogonal Matching Pursuit | --          | [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit) |
 | Least Median of Squares     | --          | [Rousseeuw, 1984](http://web.ipac.caltech.edu/staff/fmasci/home/astro_refs/LeastMedianOfSquares.pdf) |
@@ -107,6 +108,8 @@ There's also [GLM.jl](https://github.com/JuliaStats/GLM.jl) which is more geared
 * **Minka**, [Algorithms for Maximum Likelihood Regression](https://tminka.github.io/papers/logreg/minka-logreg.pdf), 2003. For a review of numerical methods for the binary Logistic Regression.
 * **Beck** and **Teboulle**, [A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems](https://tinyurl.com/beck-teboulle-fista), 2009. For the ISTA and FISTA algorithms.
 * **Raman** et al, [DS-MLR: Exploiting Double Separability for Scaling up DistributedMultinomial Logistic Regression](https://arxiv.org/pdf/1604.04706.pdf), 2018. For a discussion of multinomial regression.
+* **Mastronardi**, [Fast Robust Regression Algorithms for Problems with Toeplitz Structure](https://pdfs.semanticscholar.org/5d54/df9fc59b26027ede8599af850cd46cdf2255.pdf), 2007. For a discussion on algorithms for robust regression.
+* **Owen**, [A Robust Hybrid of Lasso and Ridge Regression](https://statweb.stanford.edu/~owen/reports/hhu.pdf), 2006. For a discussion of Huber regression and other related topics.
 
 ## Dev notes
 

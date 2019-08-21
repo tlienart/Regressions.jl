@@ -1,18 +1,18 @@
 # Newton and quasi Newton solvers
 
-## LOGISTIC ==============
+## LOGISTIC + 0/L2 and Huber ==============
 
 """
 $SIGNATURES
 
-Fit a logistic regression either with no penalty or with a L2 penalty using Newton's method.
+Fit a GLR using Newton's method.
 
 ## Complexity
 
 Assuming `n` dominates `p`, O(κnp²), dominated by the construction of the Hessian at each step with
 κ the number of Newton steps.
 """
-function _fit(glr::GLR{LogisticLoss,<:L2R}, solver::Newton, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::Newton, X, y)
     p     = size(X, 2) + Int(glr.fit_intercept)
     θ₀    = zeros(p)
     _fgh! = fgh!(glr, X, y)
@@ -24,8 +24,8 @@ end
 """
 $SIGNATURES
 
-Fit a logistic regression either with no penalty (OLS) or with a L2 penalty (Ridge) using Newton's
-method but using an iterative solver (conjugate gradient) to solve the problems (∇²f)⁻¹∇f.
+Fit a GLR using Newton's method combined with an iterative solver  (conjugate gradient) to solve
+the Newton steps (∇²f)⁻¹∇f.
 
 ## Complexity
 
@@ -33,7 +33,7 @@ Assuming `n` dominates `p`, O(κ₁κ₂np), dominated by the application of the
 where κ₁ is the number of Newton steps and κ₂ is the average number of CG steps per Newton step
 (which is at most p).
 """
-function _fit(glr::GLR{LogisticLoss,<:L2R}, solver::NewtonCG, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::NewtonCG, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     θ₀   = zeros(p)
     _f   = objective(glr, X, y)
@@ -47,14 +47,14 @@ end
 """
 $SIGNATURES
 
-Fit a logistic regression either with no penalty or with a L2 penalty using LBFGS.
+Fit a GLR using LBFGS.
 
 ## Complexity
 
 Assuming `n` dominates `p`, O(κnp), dominated by the computation of the gradient at each step with
 κ the number of LBFGS steps.
 """
-function _fit(glr::GLR{LogisticLoss,<:L2R}, solver::LBFGS, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::LBFGS, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     θ₀   = zeros(p)
     _fg! = (f, g, θ) -> fgh!(glr, X, y)(f, g, nothing, θ)
@@ -64,13 +64,12 @@ function _fit(glr::GLR{LogisticLoss,<:L2R}, solver::LBFGS, X, y)
 end
 
 
-## MULTINOMIAL ==============
+## MULTINOMIAL + 0/L2 ==============
 
 """
 $SIGNATURES
 
-Fit a multinomial regression either with no penalty or with a L2 penalty using Newton's method with
-an iterative solver (conjugate gradient).
+Fit a multiclass GLR using Newton's method with an iterative solver (conjugate gradient).
 
 ## Complexity
 
@@ -93,7 +92,7 @@ end
 """
 $SIGNATURES
 
-Fit a multinomial regression either with no penalty or with a L2 penalty using LBFGS.
+Fit a multiclass GLR using LBFGS.
 
 ## Complexity
 

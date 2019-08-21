@@ -6,6 +6,7 @@ m("UTILS"); include("utils.jl")
 m("LOSS-PENALTY"); begin
     include("loss-penalty/generic.jl")
     include("loss-penalty/utils.jl")
+    include("loss-penalty/robust.jl")
 end
 
 m("GLR"); begin

@@ -14,11 +14,13 @@ include("utils.jl")
 
 include("loss-penalty/generic.jl")
 include("loss-penalty/standard.jl")
+include("loss-penalty/robust.jl")
 include("loss-penalty/utils.jl")
 
 include("glr/constructors.jl")
 include("glr/d_l2loss.jl")
 include("glr/d_logistic.jl")
+include("glr/d_robust.jl")
 include("glr/prox.jl")
 include("glr/utils.jl")
 

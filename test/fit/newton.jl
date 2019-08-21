@@ -78,3 +78,27 @@ n, p, c = 500, 5, 4
         @test J(θ1_sk_lbfgs) ≤ 390.31
     end
 end
+
+n, p = 500, 5
+((X, y, θ), (X_, y1, θ1)) = generate_continuous(n, p; seed=525)
+
+@testset "HuberReg" begin
+    # No intercept
+    δ = 0.01
+    λ = 3.0
+    hr = HuberRegression(δ, λ, fit_intercept=false)
+    J = objective(hr, X, y)
+    o = HuberLoss(δ) + λ * L2Penalty()
+    @test J(θ) == o(y, X*θ, θ)
+    @test J(θ)          ≤ 10.61
+    θ_newton = fit(hr, X, y, solver=Newton())
+    @test J(θ_newton)   ≤ 7.71
+    θ_newtoncg = fit(hr, X, y, solver=NewtonCG())
+    @test J(θ_newtoncg) ≤ 7.71
+    θ_lbfgs = fit(hr, X, y, solver=LBFGS())
+    @test J(θ_lbfgs)    ≤ 7.71
+
+    # XXX XXX XXX XXX XXX XXX XXX XXX
+    # TODO test the rest with intercept
+
+end

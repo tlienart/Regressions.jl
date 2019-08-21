@@ -61,6 +61,6 @@ function smooth_fg!(glr::GLR{L2Loss,<:ENR}, X, y)
         else
             mul!(g, X', Xθ .- y)
         end
-        return sum(abs2.(Xθ .- y))/2 + λ * sum(abs2.(θ))/2
+        return glr.loss(Xθ, y) + get_l2(glr.penalty)(θ)
     end
 end
