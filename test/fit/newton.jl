@@ -84,18 +84,37 @@ n, p = 500, 5
 
 @testset "HuberReg" begin
     # No intercept
-    δ = 0.01
-    λ = 3.0
-    hr = HuberRegression(δ, λ, fit_intercept=false)
-    J = objective(hr, X, y)
-    o = HuberLoss(δ) + λ * L2Penalty()
-    @test J(θ) == o(y, X*θ, θ)
-    @test J(θ)          ≤ 10.61
+    M = 1.35
+    λ = 0.0
+    hr = HuberRegression(M, λ, fit_intercept=false)
+    hl = HuberLoss(M)
+    hp = λ * L2Penalty()
+
+    J(θ, η) = begin
+        r = (R.apply_X(X, θ) .- y) ./ η^2
+        hl(r) + hp(θ)
+    end
+    J(θ) = J(θ[1:end-1], θ[end])
+
     θ_newton = fit(hr, X, y, solver=Newton())
+
+    θ_n, η = θ_newton[1:p], θ_newton[end]
+
+    o(θ_n)
+
     @test J(θ_newton)   ≤ 7.71
+
+    θ_newtoncg = fit(hr, X, y, solver=NewtonCG())
+
+
+
     θ_newtoncg = fit(hr, X, y, solver=NewtonCG())
     @test J(θ_newtoncg) ≤ 7.71
+
+
     θ_lbfgs = fit(hr, X, y, solver=LBFGS())
+
+
     @test J(θ_lbfgs)    ≤ 7.71
 
     # XXX XXX XXX XXX XXX XXX XXX XXX

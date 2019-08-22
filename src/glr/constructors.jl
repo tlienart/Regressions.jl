@@ -52,13 +52,13 @@ end
 """
 $SIGNATURES
 
-Objective function: ``∑ρ(y - Xθ) + λ|θ|₂²`` where ρ is the Huber function with parameter δ (radius
+Objective function: ``∑ρ(y - Xθ) + λ|θ|₂²`` where ρ is the Huber function with parameter M (radius
 of the l1-ball in which the Huber approximation is used).
 """
-function HuberRegression(δ::Real=0.5, λ::Real=1.0; delta::Real=δ, lambda::Real=λ,
+function HuberRegression(M::Real=0.5, λ::Real=1.0; delta::Real=M, lambda::Real=λ,
                          fit_intercept::Bool=true)
-    check_pos.((δ, λ))
-    GLR(fit_intercept=fit_intercept, loss=HuberLoss{δ}(), penalty=lambda*L2Penalty())
+    check_pos.((M, λ))
+    GLR(fit_intercept=fit_intercept, loss=HuberLoss(M), penalty=lambda*L2Penalty())
 end
 
 
