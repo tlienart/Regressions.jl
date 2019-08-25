@@ -18,7 +18,7 @@ function Hv!(glr::GLR{L2Loss,<:L2R}, X, y)
     if glr.fit_intercept
         # H = [X 1]'[X 1] + λ I
         # rows a 1:p = [X'X + λI | X'1]
-        # row  e end = [1'X'     | n+λ]
+        # row  e end = [1'X      | n+λ]
         (Hv, v) -> begin
             # view on the first p rows
             a   = 1:p

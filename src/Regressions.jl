@@ -30,5 +30,6 @@ include("fit/analytical.jl")
 # include("fit/grad.jl")
 include("fit/newton.jl")
 include("fit/proxgrad.jl")
+include("fit/iwls.jl")
 
 end # module

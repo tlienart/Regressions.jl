@@ -80,3 +80,34 @@ function Hv!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
         end
     end
 end
+
+
+function Mv!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
+    p = size(X, 2)
+    λ = getscale(glr.penalty)
+    # For one θ, we get one system of equation to solve
+    # which we solve via an iterative method so, one θ
+    # gives one way of applying the relevant matrix (X'ΛX+λI)
+    (ω, θ) -> begin
+        r  = apply_X(X, θ) .- y
+        w  = convert.(Float64, abs.(r) .<= δ)
+        ψr = r .* w .+ δ .* sign.(r) .* (1.0 .- w)
+        # ω = ψ(r)/r ; weighing factor for IWLS
+        ω .= w .+ (δ ./ abs.(r)) .* (1.0 .- w)
+        # function defining the application of (X'ΛX + λI)
+        if glr.fit_intercept
+            (Mv, v) -> begin
+                a    = 1:p
+                vₐ   = view(v, a)
+                Mvₐ  = view(Mv, a)
+                XtW1 = vec(sum(ω .* X, dims=1))
+                vₑ   = v[end]
+                mul!(Mvₐ, X', ω .* (X * vₐ))
+                Mvₐ .+= λ .* vₐ .+ XtW1 .* vₑ
+                Mv[end] = dot(XtW1, vₐ) + (sum(ω)+λ) * vₑ
+            end
+        else
+            (Mv, v) -> (mul!(Mv, X', ω .* (X * v));  Mv .+= λ .* v)
+        end
+    end
+end

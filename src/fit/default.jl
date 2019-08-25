@@ -8,6 +8,7 @@ export fit
 _solver(::GLR{L2Loss,<:L2R},	 	  np::NTuple{2,Int}) = Analytical()
 _solver(::GLR{LogisticLoss,<:L2R}, 	  np::NTuple{2,Int}) = LBFGS()
 _solver(::GLR{MultinomialLoss,<:L2R}, np::NTuple{2,Int}) = LBFGS()
+_solver(::GLR{HuberLoss,<:L2R},       np::NTuple{2,Int}) = LBFGS()
 
 function _solver(glr::GLR{<:SMOOTH_LOSS,<:ENR},
 			     np::NTuple{2,Int})

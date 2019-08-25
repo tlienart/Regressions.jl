@@ -19,4 +19,5 @@ m("FIT"); begin
     include("fit/analytical.jl")
     include("fit/newton.jl")
     include("fit/proxgrad.jl")
+    include("fit/robust.jl")
 end
