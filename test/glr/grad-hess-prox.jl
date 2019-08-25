@@ -1,31 +1,25 @@
-
-Random.seed!(1234)
 n, p = 50, 5
-X = randn(n, p)
-X_ = R.augment_X(X, true)
-θ  = randn(p)
-θ1 = randn(p+1)
-y = rand(n)
+((X, y, θ), (X_, y1, θ1)) = generate_continuous(n, p; seed=1234)
 
 @testset "GH> Ridge" begin
     # with fit_intercept
     λ = 0.5
     r = RidgeRegression(λ)
     hv! = R.Hv!(r, X, y)
-    v = randn(p + 1)
+    v = randn(p+1)
     hv = similar(v)
     hv!(hv, v)
     @test hv ≈ X_'*(X_*v) .+ λ * v
     # without fit_intercept
     r = RidgeRegression(λ; fit_intercept=false)
     hv! = R.Hv!(r, X, y)
-    v = randn(p)
+    v = randn(length(θ))
     hv = similar(v)
     hv!(hv, v)
     @test hv ≈ X'*(X*v) .+ λ * v
 end
 
-@testset "GH> EN/Lassso" begin
+@testset "GH> EN/Lasso" begin
     λ = 3.4
     γ = 2.7
     r = LassoRegression(λ)
@@ -42,7 +36,6 @@ end
     @test f ≈ sum(abs2.(X_*θ1 .- y))/2 + λ * norm(θ1)^2/2
     @test g ≈ X_' * (X_*θ1 .- y) .+ λ * θ1
 end
-
 
 @testset "GH> LogitL2" begin
     # fgh! without fit_intercept
@@ -135,4 +128,48 @@ end
     Hv1 = similar(θ1)
     hv!(Hv1, θ1, v1)
     @test Hv1 ≈ Hv1_sk
+end
+
+@testset "GH> Huber" begin
+    δ, λ  = 0.5, 3.4
+    hlr   = HuberRegression(δ, λ; fit_intercept=false)
+    hlr1  = HuberRegression(δ, λ)
+    fgh!  = R.fgh!(hlr, X, y)
+    fgh1! = R.fgh!(hlr1, X, y1)
+
+    θ_  = randn(p) # otherwise the residuals are too small and everything is in the l1-ball
+    θ1_ = randn(p+1)
+
+    g = similar(θ)
+    H = zeros(p, p)
+    g1 = similar(θ1)
+    H1 = zeros(p+1, p+1)
+
+    f = fgh!(0.0, g, H, θ_)
+    r = X*θ_ .- y
+    @test f == hlr.loss(r) + hlr.penalty(θ_)
+    mask = abs.(r) .<= δ
+    @test g ≈ (X' * (r .* mask)) .+ (X' * (δ .* sign.(r) .* .!mask)) .+ λ .* θ_
+    @test H == X' * (mask .* X) + λ*I
+
+    f1 = fgh1!(0.0, g1, H1, θ1_)
+    r1 = X_*θ1_ .- y1
+    mask = abs.(r1) .<= δ
+    @test f1 == hlr1.loss(r1) + hlr1.penalty(θ1_)
+    @test g1 ≈ (X_' * (r1 .* mask)) .+ (X_' * (δ .* sign.(r1) .* .!mask)) .+ λ .* θ1_
+    @test H1 ≈ X_' * (mask .* X_) + λ*I
+
+    Hv! = R.Hv!(hlr, X, y)
+    Hv1! = R.Hv!(hlr1, X, y1)
+
+    Hv = similar(θ_)
+    v = randn(p)
+    Hv1 = similar(θ1_)
+    v1 = randn(p+1)
+
+    Hv!(Hv, θ_, v)
+    Hv1!(Hv1, θ1_, v1)
+
+    @test Hv ≈ H * v
+    @test Hv1 ≈ H1 * v1
 end

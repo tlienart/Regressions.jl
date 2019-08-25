@@ -15,9 +15,9 @@ function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
     λ = getscale(glr.penalty)
     if glr.fit_intercept
         (f, g, H, θ) -> begin
-            v = apply_X(X, θ)
+            Xθ = apply_X(X, θ)
             # precompute σ(yXθ) use -σ(-x) = (σ(x)-1)
-            w = σ.(v .* y)
+            w  = σ.(Xθ .* y)
             g === nothing || begin
                 tmp = y .* (w .- 1.0)
                 mul!(view(g, 1:p), X', tmp)
@@ -34,23 +34,23 @@ function fgh!(glr::GLR{LogisticLoss,<:L2R}, X, y)
                 H[end, end] = sum(w)
                 add_λI!(H, λ)
             end
-            f === nothing || return J(y, v, θ)
+            f === nothing || return J(y, Xθ, θ)
         end
     else
         (f, g, H, θ) -> begin
-            v = apply_X(X, θ)
+            Xθ = apply_X(X, θ)
             # precompute σ(yXθ) use -σ(-x) = σ(x)(σ(x)-1)
-            w = σ.(y .* v)
+            w = σ.(y .* Xθ)
             g === nothing || (mul!(g, X', y .* (w .- 1.0)); g .+= λ .* θ)
             H === nothing || (mul!(H, X', w .* X); add_λI!(H, λ))
-            f === nothing || return J(y, v, θ)
+            f === nothing || return J(y, Xθ, θ)
         end
     end
 end
 
 function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
-    n, p = size(X)
-    λ    = getscale(glr.penalty)
+    p = size(X, 2)
+    λ = getscale(glr.penalty)
     if glr.fit_intercept
         # H = [X 1]'Λ[X 1] + λ I
         # rows a 1:p = [X'ΛX + λI | X'Λ1]
@@ -62,7 +62,7 @@ function Hv!(glr::GLR{LogisticLoss,<:L2R}, X, y)
             a    = 1:p
             Hvₐ  = view(Hv, a)
             vₐ   = view(v,  a)
-            XtΛ1 = X' * (w .* ones(n))     # X'Λ1; O(np)
+            XtΛ1 = X' * w     # X'Λ1; O(np)
             vₑ   = v[end]
             # update for the first p rows -- (X'X + λI)v[1:p] + (X'1)v[end]
             mul!(Hvₐ, X', w .* (X * vₐ)) # (X'ΛX)vₐ
@@ -131,7 +131,7 @@ function fg!(glr::GLR{MultinomialLoss,<:L2R}, X, y)
             ms = maximum(P, dims=2)
             ss = sum(M ./ exp.(ms), dims=2)
             @inbounds ps = [P[i, y[i]] for i in eachindex(y)]
-            return sum(log.(ss) .+ ms .- ps) + λ * norm(θ)^2/2
+            return sum(log.(ss) .+ ms .- ps) + glr.penalty(θ)
         end
     end
 end
