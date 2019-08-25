@@ -1,6 +1,6 @@
 export GeneralizedLinearRegression, GLR,
         LinearRegression, RidgeRegression,
-        LassoRegression, ElasticNetRegression,
+        HuberRegression, LassoRegression, ElasticNetRegression,
         LogisticRegression, MultinomialRegression
 
 """
@@ -46,6 +46,23 @@ Objective function: ``|y-Xθ|₂²/2 + λ|θ|₂²/2``.
 function RidgeRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true)
     check_pos(λ)
     GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty())
+end
+
+
+"""
+$SIGNATURES
+
+Objective function: ``∑ρ(y - Xθ) + λ|θ|₂²`` where ρ is the Huber function with parameter δ (radius
+of the l1-ball in which the Huber approximation is used).
+
+Note: in other packages such as Scikit-Learn, a scale parameter for the residuals is learned while
+δ is fixed; we do not do this here as this does not work well with penalization; we recommend using
+cross validation for δ instead.
+"""
+function HuberRegression(δ::Real=0.5, λ::Real=1.0; delta::Real=δ, lambda::Real=λ,
+                         fit_intercept::Bool=true)
+    check_pos.((δ, λ))
+    GLR(fit_intercept=fit_intercept, loss=HuberLoss(δ), penalty=lambda*L2Penalty())
 end
 
 

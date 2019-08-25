@@ -17,19 +17,23 @@ The core aims of this package are:
 
 - make these regressions models "easy to call" and callable in a unified way,
 - interface with [`MLJ.jl`](https://github.com/alan-turing-institute/MLJ.jl),
-- focus on performance including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl).
+- focus on performance including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl),
+- use a "machine learning" perspective, i.e.: focus essentially on prediction, hyper-parameters should be obtained via a data-driven procedure such as cross-validation.
 
 ## Implemented
 
-| Regressors                 | Formulation (⭒)    | Available solvers        | Comments |
-| :------------------------- | :----------------- | :----------------------- | :------- |
-| OLS & Ridge                | L2Loss + 0/L2      | Analytical (†) or CG (‡) |          |
-| Lasso & Elastic-Net        | L2Loss + 0/L2 + L1 | (F)ISTA (⌂)              |          |
+| Regressors           | Formulation (1)    | Available solvers                    | Comments     |
+| :------------------- | :----------------- | :----------------------------------- | :----------- |
+| OLS & Ridge          | L2Loss + 0/L2      | Analytical (2) or CG (3)             |              |
+| Lasso & Elastic-Net  | L2Loss + 0/L2 + L1 | (F)ISTA (4)                          |              |
+| Huber 0/L2           | HuberLoss + 0/L2   | Newton, NewtonCG, LBFGS, IWLS-CG (5) | no scale (6) |
 
-* (⭒) "0" stands for no penalty
-* (†) Analytical means the solution is computed in "one shot" using the `\` solver,
-* (‡) CG = conjugate gradient
-* (⌂) (Accelerated) Proximal Gradient Descent
+1. "0" stands for no penalty
+2. Analytical means the solution is computed in "one shot" using the `\` solver,
+3. CG = conjugate gradient
+4. (Accelerated) Proximal Gradient Descent
+5. Iteratively re-Weighted Least Squares where each system is solved iteratively via CG
+6. In other packages such as Scikit-Learn, a scale factor is estimated along with the parameters, this is a bit ad-hoc and corresponds more to a statistical perspective, further it does not work well with penalties; we recommend using cross-validation to set the parameter of the Huber Loss. (**TODO**: _document_)
 
 | Classifiers       | Formulation                 | Available solvers        | Comments       |
 | :-----------------| :-------------------------- | :----------------------- | :------------- |
@@ -47,13 +51,12 @@ Unless otherwise specified:
 
 * The models are built and tested assuming `n > p`; if this doesn't hold, tricks should be employed to speed up computations; these have not been implemented yet.
 * Stochastic solvers that would be appropriate for huge models have not yet been implemented.
-* One vs All strategy for multi-class classification out of binary classifiers has not yet been implemented.
+* "Meta" functionalities such as One-vs-All or Cross-Validation are left to other packages such as MLJ.
 
 ### Possible future models
 
-| Model                     | Formulation (⭒)              | Comments |
+| Model                     | Formulation                  | Comments |
 | :------------------------ | :--------------------------- | :------- |
-| Huber 0/L2                | HuberLosss + No/L2           |  ⭒       |
 | Huber L1/ElasticNet       | HuberLosss + No/L2 + L1      |  ⭒       |
 | Group Lasso               | L2Loss + ∑L1 over groups     |  ⭒       |
 | Adaptive Lasso            | L2Loss + weighted L1         |  ⭒ [A](http://myweb.uiowa.edu/pbreheny/7600/s16/notes/2-29.pdf) |
@@ -77,7 +80,8 @@ Sklearn's list: https://scikit-learn.org/stable/supervised_learning.html#supervi
 | Model                       | Note        | Link(s)                                            |
 | :-------------------------- | :---------- | :------------------------------------------------- |
 | LARS                        | --          |                                                    |
-| Quantile Regression         | --          | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl)
+| Quantile Regression         | --          | [Yang et al, 2013](https://www.stat.berkeley.edu/~mmahoney/pubs/quantile-icml13.pdf), [QuantileRegression.jl](https://github.com/pkofod/QuantileRegression.jl) |
+| L∞ approx (Logsumexp)       | --          | [slides](https://www.cs.ubc.ca/~schmidtm/Courses/340-F15/L15.pdf)|
 | Passive Agressive           | --          | [Crammer et al, 2006](http://jmlr.csail.mit.edu/papers/volume7/crammer06a/crammer06a.pdf) [SkL](https://scikit-learn.org/stable/modules/linear_model.html#passive-aggressive-algorithms) |
 | Orthogonal Matching Pursuit | --          | [SkL](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit) |
 | Least Median of Squares     | --          | [Rousseeuw, 1984](http://web.ipac.caltech.edu/staff/fmasci/home/astro_refs/LeastMedianOfSquares.pdf) |
@@ -107,6 +111,8 @@ There's also [GLM.jl](https://github.com/JuliaStats/GLM.jl) which is more geared
 * **Minka**, [Algorithms for Maximum Likelihood Regression](https://tminka.github.io/papers/logreg/minka-logreg.pdf), 2003. For a review of numerical methods for the binary Logistic Regression.
 * **Beck** and **Teboulle**, [A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems](https://tinyurl.com/beck-teboulle-fista), 2009. For the ISTA and FISTA algorithms.
 * **Raman** et al, [DS-MLR: Exploiting Double Separability for Scaling up DistributedMultinomial Logistic Regression](https://arxiv.org/pdf/1604.04706.pdf), 2018. For a discussion of multinomial regression.
+* **Mastronardi**, [Fast Robust Regression Algorithms for Problems with Toeplitz Structure](https://pdfs.semanticscholar.org/5d54/df9fc59b26027ede8599af850cd46cdf2255.pdf), 2007. For a discussion on algorithms for robust regression.
+* **Owen**, [A Robust Hybrid of Lasso and Ridge Regression](https://statweb.stanford.edu/~owen/reports/hhu.pdf), 2006. For a discussion of Huber regression and other related topics.
 
 ## Dev notes
 

@@ -1,7 +1,8 @@
 export Analytical, CG,
         Newton, NewtonCG,
         LBFGS,
-        ProxGrad, FISTA, ISTA
+        ProxGrad, FISTA, ISTA,
+        IWLS
 
 # =====
 # TODO
@@ -43,3 +44,15 @@ end
 
 FISTA(; kwa...) = ProxGrad(;accel = true, kwa...)
 ISTA(; kwa...)  = ProxGrad(;accel = false, kwa...)
+
+
+# ===================== iwls.jl
+
+# TODO add over-relaxation
+
+@with_kw struct IWLS <: Solver
+    max_iter::Int    = 100
+    max_inner::Int   = 200
+    tol::Float64     = 1e-4
+    damping::Float64 = 1.0  # should be between 0 and 1, 1 = trust iterates
+end
