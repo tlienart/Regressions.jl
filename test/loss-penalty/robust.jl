@@ -4,6 +4,6 @@ r = x .- y
 
 @testset "Huber Loss" begin
     δ = 0.5
-    hlδ = HuberLoss{δ}()
+    hlδ = HuberLoss(δ)
     @test hlδ(r) == hlδ(x, y) == sum(ifelse(abs(rᵢ)≤δ, rᵢ^2/2, δ*(abs(rᵢ)-δ/2)) for rᵢ in r)
 end

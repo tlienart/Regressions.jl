@@ -1,5 +1,5 @@
 using Regressions, Test, LinearAlgebra, Random
-DO_SKLEARN = true; include("testutils.jl")
+DO_SKLEARN = false; include("testutils.jl")
 
 m("UTILS"); include("utils.jl")
 
