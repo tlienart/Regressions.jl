@@ -17,19 +17,23 @@ The core aims of this package are:
 
 - make these regressions models "easy to call" and callable in a unified way,
 - interface with [`MLJ.jl`](https://github.com/alan-turing-institute/MLJ.jl),
-- focus on performance including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl).
+- focus on performance including in "big data" settings exploiting packages such as [`Optim.jl`](https://github.com/JuliaNLSolvers/Optim.jl), [`IterativeSolvers.jl`](https://github.com/JuliaMath/IterativeSolvers.jl),
+- use a "machine learning" perspective, i.e.: focus essentially on prediction, hyper-parameters should be obtained via a data-driven procedure such as cross-validation.
 
 ## Implemented
 
-| Regressors                 | Formulation (⭒)    | Available solvers        | Comments |
-| :------------------------- | :----------------- | :----------------------- | :------- |
-| OLS & Ridge                | L2Loss + 0/L2      | Analytical (†) or CG (‡) |          |
-| Lasso & Elastic-Net        | L2Loss + 0/L2 + L1 | (F)ISTA (⌂)              |          |
+| Regressors           | Formulation (1)    | Available solvers                    | Comments     |
+| :------------------- | :----------------- | :----------------------------------- | :----------- |
+| OLS & Ridge          | L2Loss + 0/L2      | Analytical (2) or CG (3)             |              |
+| Lasso & Elastic-Net  | L2Loss + 0/L2 + L1 | (F)ISTA (4)                          |              |
+| Huber 0/L2           | HuberLoss + 0/L2   | Newton, NewtonCG, LBFGS, IWLS-CG (5) | no scale (6) |
 
-* (⭒) "0" stands for no penalty
-* (†) Analytical means the solution is computed in "one shot" using the `\` solver,
-* (‡) CG = conjugate gradient
-* (⌂) (Accelerated) Proximal Gradient Descent
+1. "0" stands for no penalty
+2. Analytical means the solution is computed in "one shot" using the `\` solver,
+3. CG = conjugate gradient
+4. (Accelerated) Proximal Gradient Descent
+5. Iteratively re-Weighted Least Squares where each system is solved iteratively via CG
+6. In other packages such as Scikit-Learn, a scale factor is estimated along with the parameters, this is a bit ad-hoc and corresponds more to a statistical perspective, further it does not work well with penalties; we recommend using cross-validation to set the parameter of the Huber Loss. (**TODO**: _document_)
 
 | Classifiers       | Formulation                 | Available solvers        | Comments       |
 | :-----------------| :-------------------------- | :----------------------- | :------------- |
@@ -47,13 +51,12 @@ Unless otherwise specified:
 
 * The models are built and tested assuming `n > p`; if this doesn't hold, tricks should be employed to speed up computations; these have not been implemented yet.
 * Stochastic solvers that would be appropriate for huge models have not yet been implemented.
-* One vs All strategy for multi-class classification out of binary classifiers has not yet been implemented.
+* "Meta" functionalities such as One-vs-All or Cross-Validation are left to other packages such as MLJ.
 
 ### Possible future models
 
-| Model                     | Formulation (⭒)              | Comments |
+| Model                     | Formulation                  | Comments |
 | :------------------------ | :--------------------------- | :------- |
-| Huber 0/L2                | HuberLosss + No/L2           |  ⭒       |
 | Huber L1/ElasticNet       | HuberLosss + No/L2 + L1      |  ⭒       |
 | Group Lasso               | L2Loss + ∑L1 over groups     |  ⭒       |
 | Adaptive Lasso            | L2Loss + weighted L1         |  ⭒ [A](http://myweb.uiowa.edu/pbreheny/7600/s16/notes/2-29.pdf) |
