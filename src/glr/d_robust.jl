@@ -11,7 +11,7 @@
 # -> ∇²f(θ) = X'Λ(r)X + λI
 # ---------------------------------------------------------
 
-function fgh!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
+function fgh!(glr::GLR{RobustLoss{R},<:L2R}, X, y) where R <: HuberRho{δ} where δ
     p  = size(X, 2)
     λ  = getscale(glr.penalty)
     if glr.fit_intercept
@@ -52,7 +52,7 @@ function fgh!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
 end
 
 
-function Hv!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
+function Hv!(glr::GLR{RobustLoss{HuberRho{δ}},<:L2R}, X, y) where {δ}
     p = size(X, 2)
     λ = getscale(glr.penalty)
     # see d_logistic.jl for more comments on this (≈ procedure)
@@ -82,7 +82,7 @@ function Hv!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
 end
 
 
-function Mv!(glr::GLR{HuberLoss{δ},<:L2R}, X, y) where {δ}
+function Mv!(glr::GLR{RobustLoss{HuberRho{δ}},<:L2R}, X, y) where {δ}
     p = size(X, 2)
     λ = getscale(glr.penalty)
     # For one θ, we get one system of equation to solve

@@ -7,7 +7,7 @@ n, p = 500, 5
     λ = 3.0
     hr = HuberRegression(δ, λ, fit_intercept=false)
     J = objective(hr, X, y)
-    o = HuberLoss(δ) + λ * L2Penalty()
+    o = RobustLoss(HuberRho(δ)) + λ * L2Penalty()
     @test J(θ) == o(y, X*θ, θ)
     @test J(θ)          ≤ 10.61
     θ_newton = fit(hr, X, y, solver=Newton())
@@ -23,7 +23,7 @@ n, p = 500, 5
     λ = 3.0
     hr = HuberRegression(δ, λ)
     J = objective(hr, X, y1)
-    o = HuberLoss(δ) + λ * L2Penalty()
+    o = RobustLoss(HuberRho(δ)) + λ * L2Penalty()
     @test J(θ1) == o(y1, X_*θ1, θ1)
     @test J(θ1)         ≤ 16.37
     θ_newton = fit(hr, X, y1, solver=Newton())

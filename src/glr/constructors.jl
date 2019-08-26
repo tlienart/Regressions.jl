@@ -1,7 +1,8 @@
 export GeneralizedLinearRegression, GLR,
         LinearRegression, RidgeRegression,
-        HuberRegression, LassoRegression, ElasticNetRegression,
-        LogisticRegression, MultinomialRegression
+        LassoRegression, ElasticNetRegression,
+        LogisticRegression, MultinomialRegression,
+        RobustRegression, HuberRegression
 
 """
 GeneralizedLinearRegression{L<:Loss, P<:Penalty}
@@ -44,25 +45,8 @@ $SIGNATURES
 Objective function: ``|y-Xθ|₂²/2 + λ|θ|₂²/2``.
 """
 function RidgeRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true)
-    check_pos(λ)
+    check_pos(lambda)
     GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty())
-end
-
-
-"""
-$SIGNATURES
-
-Objective function: ``∑ρ(y - Xθ) + λ|θ|₂²`` where ρ is the Huber function with parameter δ (radius
-of the l1-ball in which the Huber approximation is used).
-
-Note: in other packages such as Scikit-Learn, a scale parameter for the residuals is learned while
-δ is fixed; we do not do this here as this does not work well with penalization; we recommend using
-cross validation for δ instead.
-"""
-function HuberRegression(δ::Real=0.5, λ::Real=1.0; delta::Real=δ, lambda::Real=λ,
-                         fit_intercept::Bool=true)
-    check_pos.((δ, λ))
-    GLR(fit_intercept=fit_intercept, loss=HuberLoss(δ), penalty=lambda*L2Penalty())
 end
 
 
@@ -72,7 +56,7 @@ $SIGNATURES
 Objective function: ``|y - Xθ|₂²/2 + λ|θ|₁``
 """
 function LassoRegression(λ::Real=1.0; lambda::Real=λ, fit_intercept::Bool=true)
-    check_pos(λ)
+    check_pos(lambda)
     GLR(fit_intercept=fit_intercept, penalty=lambda*L1Penalty())
 end
 
@@ -84,8 +68,8 @@ Objective function: ``|y - Xθ|₂²/2 + λ|θ|₂²/2 + γ|θ|₁``
 """
 function ElasticNetRegression(λ::Real=1.0, γ::Real=1.0; lambda::Real=λ, gamma::Real=γ,
                              fit_intercept::Bool=true)
-    check_pos.((λ,γ))
-    GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty()+γ*L1Penalty())
+    check_pos.((lambda, gamma))
+    GLR(fit_intercept=fit_intercept, penalty=lambda*L2Penalty()+gamma*L1Penalty())
 end
 
 
@@ -95,11 +79,11 @@ $SIGNATURES
 Objective function: ``L(y, Xθ) + λ|θ|₂²/2 + γ|θ|₁`` where `L` is either the logistic loss in the
 binary case or the multinomial loss otherwise.
 """
-function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ,
-                            penalty::Symbol=iszero(γ) ? :l2 : :en,
+function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ, gamma::Real=γ,
+                            penalty::Symbol=iszero(gamma) ? :l2 : :en,
                             multi_class::Bool=false,
-                            fit_intercept::Bool=true, gamma::Real=γ)
-    check_pos.((λ, γ))
+                            fit_intercept::Bool=true)
+    check_pos.((lambda, gamma))
     penalty ∈ (:l1, :l2, :en, :none) ||
         throw(ArgumentError("Unrecognised penalty for a logistic regression: '$penalty' " *
                             "(expected none/l1/l2/en)"))
@@ -107,14 +91,35 @@ function LogisticRegression(λ::Real=1.0, γ::Real=0.0; lambda::Real=λ,
     penalty = if penalty == :none
        NoPenalty()
     elseif penalty == :l1
-        λ * L1Penalty()
+        lambda * L1Penalty()
     elseif penalty == :l2
-        λ * L2Penalty()
+        lambda * L2Penalty()
     else
-        λ * L2Penalty() + γ * L1Penalty()
+        lambda * L2Penalty() + gamma * L1Penalty()
     end
     loss = multi_class ? MultinomialLoss() : LogisticLoss()
     GeneralizedLinearRegression(loss=loss, penalty=penalty, fit_intercept=fit_intercept)
 end
 
 MultinomialRegression(a...; kwa...) = LogisticRegression(a...; multi_class=true, kwa...)
+
+
+# ========
+
+"""
+$SIGNATURES
+
+Objective function: ``∑ρ(y - Xθ) + λ|θ|₂²`` where ρ is a given function on the residuals and
+δ a positive tuning parameter for the function in question (e.g. for Huber it corresponds to the
+radius of the ball in which residuals are weighed quadratically).
+"""
+function RobustRegression(ρ::RobustRho=HuberRho(0.1), λ::Real=1.0; rho::RobustRho=ρ,
+                          lambda::Real=λ, fit_intercept::Bool=true)
+    check_pos.(lambda)
+    GLR(fit_intercept=fit_intercept, loss=RobustLoss(rho), penalty=lambda*L2Penalty())
+end
+
+function HuberRegression(δ::Real=0.5, λ::Real=1.0; delta::Real=δ, lambda::Real=λ,
+                         fit_intercept::Bool=true)
+    return RobustRegression(HuberRho(delta), lambda; fit_intercept=fit_intercept)
+end

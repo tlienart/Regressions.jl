@@ -55,6 +55,14 @@ Unless otherwise specified:
 
 ### Possible future models
 
+#### WIP
+
+* Robust regression with Biweight, Tarwal, ... via IWLS etc
+* Quantile reg with ADMM, IWLS, (? IP, Frisch Newton)
+* LAD with ADMM
+
+#### Future
+
 | Model                     | Formulation                  | Comments |
 | :------------------------ | :--------------------------- | :------- |
 | Huber L1/ElasticNet       | HuberLosss + No/L2 + L1      |  ⭒       |
@@ -90,6 +98,7 @@ Sklearn's list: https://scikit-learn.org/stable/supervised_learning.html#supervi
 | Count regression            | _need to figure out how they work_ | [R](https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf) |
 | Robust M estimators         | --          | [F](https://arxiv.org/pdf/1508.01967.pdf) |
 | Perceptron, MIRA classifier | Sklearn just does OVA with binary in SGDClassif      | [H](https://cl.lingfil.uu.se/~nivre/master/ml7-18.pdf) |
+| Robust PTS and LTS | -- | [PTS](https://arxiv.org/pdf/0901.0876.pdf) [LTS](https://arxiv.org/pdf/1304.4773.pdf) |
 
 
 ## What about other packages
@@ -112,7 +121,8 @@ There's also [GLM.jl](https://github.com/JuliaStats/GLM.jl) which is more geared
 * **Beck** and **Teboulle**, [A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems](https://tinyurl.com/beck-teboulle-fista), 2009. For the ISTA and FISTA algorithms.
 * **Raman** et al, [DS-MLR: Exploiting Double Separability for Scaling up DistributedMultinomial Logistic Regression](https://arxiv.org/pdf/1604.04706.pdf), 2018. For a discussion of multinomial regression.
 * **Mastronardi**, [Fast Robust Regression Algorithms for Problems with Toeplitz Structure](https://pdfs.semanticscholar.org/5d54/df9fc59b26027ede8599af850cd46cdf2255.pdf), 2007. For a discussion on algorithms for robust regression.
-* **Owen**, [A Robust Hybrid of Lasso and Ridge Regression](https://statweb.stanford.edu/~owen/reports/hhu.pdf), 2006. For a discussion of Huber regression and other related topics.
+* **Fox** and **Weisberg**, [Robust Regression](http://users.stat.umn.edu/~sandy/courses/8053/handouts/robust.pdf), 2013. For a discussion on robust regression and the IWLS algorithm.
+
 
 ## Dev notes
 
