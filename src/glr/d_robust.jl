@@ -11,27 +11,30 @@
 # -> ∇²f(θ) = X'Λ(r)X + λI
 # ---------------------------------------------------------
 
-function fgh!(glr::GLR{RobustLoss{R},<:L2R}, X, y) where R <: HuberRho{δ} where δ
+function fgh!(glr::GLR{RobustLoss{ρ},<:L2R}, X, y) where ρ <: RobustRho1P{δ} where δ
     p  = size(X, 2)
     λ  = getscale(glr.penalty)
+    ψ_ = ψ(ρ)
+    ϕ_ = ϕ(ρ)
     if glr.fit_intercept
         (f, g, H, θ) -> begin
             r = apply_X(X, θ) .- y
-            w = convert.(Float64, abs.(r) .<= δ) # note that ϕr = w
+            w = convert.(Float64, abs.(r) .<= δ)
             g === nothing || begin
-                ψr  = r .* w .+ δ .* sign.(r) .* (1.0 .- w)
+                ψr = ψ_(r, w)
                 mul!(view(g, 1:p), X', ψr)
                 g[end] = sum(ψr)
                 g .+= λ .* θ
             end
             H === nothing || begin
-                ΛX = w .* X
+                ϕr = ϕ_(r, w)
+                ΛX = ϕr .* X
                 mul!(view(H, 1:p, 1:p), X', ΛX)
                 ΛXt1 = sum(ΛX, dims=1)
                 @inbounds for i in 1:p
                     H[i, end] = H[end, i] = ΛXt1[i]
                 end
-                H[end, end] = sum(w)
+                H[end, end] = sum(ϕr)
                 add_λI!(H, λ)
             end
             f === nothing || return glr.loss(r) + glr.penalty(θ)
@@ -39,23 +42,23 @@ function fgh!(glr::GLR{RobustLoss{R},<:L2R}, X, y) where R <: HuberRho{δ} where
     else
         (f, g, H, θ) -> begin
             r = apply_X(X, θ) .- y
-            w = convert.(Float64, abs.(r) .<= δ) # note that ϕr = w
+            w = convert.(Float64, abs.(r) .<= δ)
             g === nothing || begin
-                ψr  = r .* w .+ δ .* sign.(r) .* (1.0 .- w)
+                ψr = ψ_(r, w)
                 mul!(g, X', ψr)
                 g .+= λ .* θ
             end
-            H === nothing || (mul!(H, X', w .* X); add_λI!(H, λ))
+            H === nothing || (mul!(H, X', ϕ_(r, w) .* X); add_λI!(H, λ))
             f === nothing || return glr.loss(r) + glr.penalty(θ)
         end
     end
 end
 
 
-function Hv!(glr::GLR{RobustLoss{HuberRho{δ}},<:L2R}, X, y) where {δ}
-    p = size(X, 2)
-    λ = getscale(glr.penalty)
-    # see d_logistic.jl for more comments on this (≈ procedure)
+function Hv!(glr::GLR{RobustLoss{ρ},<:L2R}, X, y) where ρ <: RobustRho1P{δ} where δ
+    p  = size(X, 2)
+    λ  = getscale(glr.penalty)
+    # see d_logistic.jl for more comments on this (similar procedure)
     if glr.fit_intercept
         (Hv, θ, v) -> begin
             r    = apply_X(X, θ) .- y
@@ -81,33 +84,33 @@ function Hv!(glr::GLR{RobustLoss{HuberRho{δ}},<:L2R}, X, y) where {δ}
     end
 end
 
-
-function Mv!(glr::GLR{RobustLoss{HuberRho{δ}},<:L2R}, X, y) where {δ}
-    p = size(X, 2)
-    λ = getscale(glr.penalty)
+# For IWLS
+function Mv!(glr::GLR{RobustLoss{ρ},<:L2R}, X, y) where ρ <: RobustRho1P{δ} where δ
+    p  = size(X, 2)
+    λ  = getscale(glr.penalty)
+    ω_ = ω(ρ)
     # For one θ, we get one system of equation to solve
     # which we solve via an iterative method so, one θ
     # gives one way of applying the relevant matrix (X'ΛX+λI)
-    (ω, θ) -> begin
+    (ωr, θ) -> begin
         r  = apply_X(X, θ) .- y
         w  = convert.(Float64, abs.(r) .<= δ)
-        ψr = r .* w .+ δ .* sign.(r) .* (1.0 .- w)
         # ω = ψ(r)/r ; weighing factor for IWLS
-        ω .= w .+ (δ ./ abs.(r)) .* (1.0 .- w)
+        ωr .= ω_(r, w)
         # function defining the application of (X'ΛX + λI)
         if glr.fit_intercept
             (Mv, v) -> begin
                 a    = 1:p
                 vₐ   = view(v, a)
                 Mvₐ  = view(Mv, a)
-                XtW1 = vec(sum(ω .* X, dims=1))
+                XtW1 = vec(sum(ωr .* X, dims=1))
                 vₑ   = v[end]
-                mul!(Mvₐ, X', ω .* (X * vₐ))
+                mul!(Mvₐ, X', ωr .* (X * vₐ))
                 Mvₐ .+= λ .* vₐ .+ XtW1 .* vₑ
-                Mv[end] = dot(XtW1, vₐ) + (sum(ω)+λ) * vₑ
+                Mv[end] = dot(XtW1, vₐ) + (sum(ωr)+λ) * vₑ
             end
         else
-            (Mv, v) -> (mul!(Mv, X', ω .* (X * v));  Mv .+= λ .* v)
+            (Mv, v) -> (mul!(Mv, X', ωr .* (X * v));  Mv .+= λ .* v)
         end
     end
 end
