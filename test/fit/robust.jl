@@ -16,7 +16,7 @@ n, p = 500, 5
     @test J(θ_newtoncg) ≤ 7.71
     θ_lbfgs = fit(hr, X, y, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 7.71
-    θ_iwls  = fit(hr, X, y, solver=IWLS())
+    θ_iwls  = fit(hr, X, y, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 7.71
 
     δ = 0.01
@@ -32,7 +32,7 @@ n, p = 500, 5
     @test J(θ_newtoncg) ≤ 10.52
     θ_lbfgs = fit(hr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 10.52
-    θ_iwls  = fit(hr, X, y1, solver=IWLS())
+    θ_iwls  = fit(hr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 10.52
 end
 
@@ -50,7 +50,7 @@ end
     @test J(θ_newtoncg) ≤ 0.492
     θ_lbfgs = fit(rr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 0.492
-    θ_iwls  = fit(rr, X, y1, solver=IWLS())
+    θ_iwls  = fit(rr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 0.492
 end
 
@@ -68,7 +68,7 @@ end
     @test J(θ_newtoncg) ≤ 0.822
     θ_lbfgs = fit(rr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 0.822
-    θ_iwls  = fit(rr, X, y1, solver=IWLS())
+    θ_iwls  = fit(rr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 0.822
 end
 
@@ -86,7 +86,7 @@ end
     @test J(θ_newtoncg) ≤ 7.67
     θ_lbfgs = fit(rr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 7.67
-    θ_iwls  = fit(rr, X, y1, solver=IWLS())
+    θ_iwls  = fit(rr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 7.67
 end
 
@@ -104,7 +104,7 @@ end
     @test J(θ_newtoncg) ≤ 16.97
     θ_lbfgs = fit(rr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 16.97
-    θ_iwls  = fit(rr, X, y1, solver=IWLS())
+    θ_iwls  = fit(rr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 16.97
 end
 
@@ -122,6 +122,6 @@ end
     @test J(θ_newtoncg) ≤ 2.45
     θ_lbfgs = fit(rr, X, y1, solver=LBFGS())
     @test J(θ_lbfgs)    ≤ 2.45
-    θ_iwls  = fit(rr, X, y1, solver=IWLS())
+    θ_iwls  = fit(rr, X, y1, solver=IWLSCG())
     @test J(θ_iwls)     ≤ 2.45
 end
