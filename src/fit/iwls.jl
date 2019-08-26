@@ -1,4 +1,4 @@
-function _fit(glr::GLR{HuberLoss{δ},<:L2R}, solver::IWLS, X, y) where {δ}
+function _fit(glr::GLR{RobustLoss{ρ},<:L2R}, solver::IWLSCG, X, y) where {ρ}
     λ    = getscale(glr.penalty)
     n    = size(X, 1)
     p    = size(X, 2) + Int(glr.fit_intercept)

@@ -7,6 +7,7 @@ SK_LM = SKLEARN ? pyimport("sklearn.linear_model") : nothing
 PY_RND = SKLEARN ? pyimport("random") : nothing
 
 m(s) = println("\n== $s ==\n")
+mm(s) = println("\n > $s < \n")
 
 nnz(θ) = sum(abs.(θ) .> 0)
 

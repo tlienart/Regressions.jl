@@ -12,7 +12,7 @@ Fit a GLR using Newton's method.
 Assuming `n` dominates `p`, O(κnp²), dominated by the construction of the Hessian at each step with
 κ the number of Newton steps.
 """
-function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::Newton, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,RobustLoss},<:L2R}, solver::Newton, X, y)
     p     = size(X, 2) + Int(glr.fit_intercept)
     θ₀    = zeros(p)
     _fgh! = fgh!(glr, X, y)
@@ -33,7 +33,7 @@ Assuming `n` dominates `p`, O(κ₁κ₂np), dominated by the application of the
 where κ₁ is the number of Newton steps and κ₂ is the average number of CG steps per Newton step
 (which is at most p).
 """
-function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::NewtonCG, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,RobustLoss},<:L2R}, solver::NewtonCG, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     θ₀   = zeros(p)
     _f   = objective(glr, X, y)
@@ -54,7 +54,7 @@ Fit a GLR using LBFGS.
 Assuming `n` dominates `p`, O(κnp), dominated by the computation of the gradient at each step with
 κ the number of LBFGS steps.
 """
-function _fit(glr::GLR{<:Union{LogisticLoss,HuberLoss},<:L2R}, solver::LBFGS, X, y)
+function _fit(glr::GLR{<:Union{LogisticLoss,RobustLoss},<:L2R}, solver::LBFGS, X, y)
     p    = size(X, 2) + Int(glr.fit_intercept)
     θ₀   = zeros(p)
     _fg! = (f, g, θ) -> fgh!(glr, X, y)(f, g, nothing, θ)
